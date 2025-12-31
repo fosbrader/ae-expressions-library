@@ -34,6 +34,9 @@ const lines = code.trim().split('\n');
         }, 2000);
       } catch (err) {
         btn.textContent = '❌ Failed';
+        setTimeout(() => {
+          btn.textContent = '📋 Copy';
+        }, 2000);
       }
     });
   });

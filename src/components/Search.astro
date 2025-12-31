@@ -84,6 +84,8 @@ const searchData = expressions.map(expr => ({
     }
     
     function renderResults(items) {
+      selectedIndex = 0; // Reset selection when results change
+      
       if (items.length === 0) {
         results.innerHTML = `
           <div class="command-palette-hint">
@@ -130,7 +132,7 @@ const searchData = expressions.map(expr => ({
       renderResults(searchResults);
     });
     
-    let selectedIndex = 0;
+    let selectedIndex = 0; // Declared here, reset in renderResults
     input?.addEventListener('keydown', (e) => {
       const items = results.querySelectorAll('.command-palette-item');
       

@@ -35,7 +35,7 @@ expressions.forEach(expr => {
 });
 
 // Version tracking
-const siteVersion = "0.2.1";
+const siteVersion = "0.2.2";
 const buildDate = new Date().toISOString().split('T')[0];
 const isDev = import.meta.env.DEV;
 const versionDisplay = isDev ? `${siteVersion}-dev` : siteVersion;
@@ -282,6 +282,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
     // Blinking cursor
     const cursor = document.getElementById('cursor');
     if (cursor) {
+      cursor.style.opacity = '1';
       setInterval(() => {
         cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
       }, 530);

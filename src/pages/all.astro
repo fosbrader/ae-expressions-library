@@ -108,13 +108,15 @@ const sortedExpressions = [...expressions].sort(
   const urlParams = new URLSearchParams(window.location.search);
   const typeParam = urlParams.get('type');
   if (typeParam) {
-    activeFilters.type = typeParam;
+    // Only apply filter if it matches a valid type (chip exists)
     const chip = filterBar?.querySelector(`.filter-chip[data-filter="type"][data-value="${typeParam}"]`);
     if (chip) {
+      activeFilters.type = typeParam;
       filterBar?.querySelectorAll('.filter-chip[data-filter="type"]').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
+      applyFilters();
     }
-    applyFilters();
+    // Invalid type param is ignored, showing all expressions
   }
   
   function applyFilters() {
