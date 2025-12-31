@@ -1,0 +1,62 @@
+---
+import IDELayout from '../layouts/IDELayout.astro';
+import changelog from '../data/changelog';
+---
+
+<IDELayout
+  title="Changelog"
+  activeTab="changelog"
+  showBreadcrumb={true}
+  breadcrumbPath="docs / changelog.md"
+>
+  <div class="changelog-page">
+    <header class="changelog-hero">
+      <div>
+        <p class="changelog-kicker">Release notes</p>
+        <h1 class="changelog-title">Changelog</h1>
+        <p class="changelog-subtitle">
+          Track what changed in each release of the AE Expressions Library. Every version lists the
+          updates we shipped and the improvements we made along the way.
+        </p>
+      </div>
+    </header>
+
+    <div class="changelog-list">
+      {changelog.map((entry) => (
+        <section class="changelog-entry">
+          <div class="changelog-entry-header">
+            <div>
+              <p class="changelog-label">Version</p>
+              <h2 class="changelog-version">{entry.version}</h2>
+            </div>
+            <div class="changelog-date">{entry.date}</div>
+          </div>
+
+          {entry.highlights && entry.highlights.length > 0 && (
+            <div class="changelog-highlights">
+              <p class="changelog-label">Highlights</p>
+              <ul>
+                {entry.highlights.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div class="changelog-grid">
+            {entry.changes.map((change) => (
+              <div class="changelog-group">
+                <h3>{change.title}</h3>
+                <ul>
+                  {change.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</IDELayout>
