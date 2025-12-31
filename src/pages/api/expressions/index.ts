@@ -22,7 +22,11 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const data = await request.json();
-    
+
+    const validated = data.validated === true || data.validated === 'true';
+    const validatedBy = data.validatedBy || (validated ? 'Validated by A.I. - GPT-5.1-Codex-Max' : 'Unvalidated');
+    const addedBy = data.addedBy || 'A.I. - GPT-5.1-Codex-Max';
+
     // Generate unique ID
     const id = `expr-${Date.now().toString(36)}`;
     
@@ -51,6 +55,9 @@ export const POST: APIRoute = async ({ request }) => {
       propertyType: data.propertyType,
       complexity: data.complexity,
       projects: data.projects || [],
+      addedBy,
+      validated,
+      validatedBy,
       tags: data.tags || [],
       code: data.code,
       annotations: data.annotations || []
@@ -68,6 +75,9 @@ layerType: "${frontmatter.layerType}"
 propertyType: "${frontmatter.propertyType}"
 complexity: ${frontmatter.complexity}
 projects: ${JSON.stringify(frontmatter.projects)}
+addedBy: "${frontmatter.addedBy}"
+validated: ${frontmatter.validated}
+validatedBy: "${frontmatter.validatedBy}"
 tags: ${JSON.stringify(frontmatter.tags)}
 code: |
 ${frontmatter.code.split('\n').map(line => '  ' + line).join('\n')}

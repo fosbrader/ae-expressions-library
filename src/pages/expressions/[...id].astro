@@ -80,8 +80,18 @@ const projectInfos = data.projects.map(pid =>
           <span class="meta-value">{data.dateAdded}</span>
         </div>
         <div class="meta-item">
+          <span class="meta-label">Added by:</span>
+          <span class="meta-value">{data.addedBy}</span>
+        </div>
+        <div class="meta-item">
           <span class="meta-label">AE Version:</span>
           <span class="meta-value">{data.aeVersion}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Validation:</span>
+          <span class={`meta-value validation-pill ${data.validated ? 'validated' : 'unvalidated'}`}>
+            {data.validated ? data.validatedBy : 'Unvalidated'}
+          </span>
         </div>
       </div>
     </header>

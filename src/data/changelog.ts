@@ -12,6 +12,34 @@ export interface VersionEntry {
 
 const changelog: VersionEntry[] = [
   {
+    version: '1.1.1',
+    date: '2025-03-21',
+    highlights: [
+      'Added controller-driven motion/utility expressions for wiggles, loops, oscillation, and time remapping',
+      'Introduced "Added by" plus validation metadata to every expression'
+    ],
+    changes: [
+      {
+        title: 'Added',
+        items: [
+          'New expressions for controller-driven wiggles, loop mode switching, freeze/resume time remap windows, and point oscillation',
+          'Validation and author metadata fields across all expressions with UI surfacing on detail and admin pages'
+        ]
+      },
+      {
+        title: 'Improved',
+        items: [
+          'Admin forms now capture validation status and author info and list validation status in the admin table',
+          'Detail pages display validation pills so readers can confirm whether an expression has been tested'
+        ]
+      },
+      {
+        title: 'Changed',
+        items: ['Bumped package version to 1.1.1 and documented the new metadata requirements in the README']
+      }
+    ]
+  },
+  {
     version: '1.1.0',
     date: '2025-03-14',
     highlights: ['Streamlined the mobile stat bar so counters stay on a single row'],

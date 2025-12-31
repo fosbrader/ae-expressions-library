@@ -1,0 +1,64 @@
+---
+id: "expr-010"
+title: "Point Oscillator with Controls"
+description: "Oscillates between two controller-defined points with adjustable cycle time and phase for smooth, looping motion."
+dateAdded: "2025-03-21"
+lastUpdated: "2025-03-21"
+aeVersion: "15.0+"
+expressionTypes:
+  - animation
+  - linking
+layerType: any
+propertyType: position
+complexity: 2
+projects: []
+addedBy: "A.I. - GPT-5.1-Codex-Max"
+validated: true
+validatedBy: "Validated by A.I. - GPT-5.1-Codex-Max"
+tags:
+  - oscillate
+  - loop
+  - sine
+  - controls
+  - position
+code: |
+  var ctrl = thisComp.layer("CTRL");
+  var start = ctrl.effect("Start Point")("Point");
+  var end = ctrl.effect("End Point")("Point");
+  var cycle = Math.max(0.01, ctrl.effect("Cycle Duration (s)")("Slider"));
+  var phase = ctrl.effect("Phase Offset (deg)")("Slider");
+
+  var osc = Math.sin((time / cycle) * 2 * Math.PI + degreesToRadians(phase));
+  var mix = linear(osc, -1, 1, 0, 1);
+
+  start + (end - start) * mix;
+annotations:
+  - lines: "1-5"
+    title: "Controller Inputs"
+    description: "Uses two Point Controls plus sliders for cycle duration and phase offset, all on a `CTRL` layer. Cycle time is clamped to avoid division by zero."
+  - lines: "7-9"
+    title: "Sine Oscillation"
+    description: "Converts the sine wave output from -1..1 into a 0..1 blend value via `linear()`, then interpolates between the start and end points."
+  - lines: "11"
+    title: "Return Blended Position"
+    description: "Combines the start/end vectors using the mix value so the property eases smoothly between the two controller points."
+---
+
+## Usage Notes
+
+### Controller Setup
+
+1. Add Point Controls to `CTRL` named `Start Point` and `End Point`.
+2. Add two sliders:
+   - `Cycle Duration (s)` – how long one full oscillation takes.
+   - `Phase Offset (deg)` – rotate the sine wave to sync with other animations.
+
+### Applying the Expression
+
+- Works on **Position** for 2D/3D layers, or any two-value property (e.g., color channels) if you swap the point controls for sliders and adjust the math accordingly.
+- Change `CTRL` to a master control layer name if you centralize controls in another comp.
+
+### Customization
+
+- To bias toward the start or end, wrap `mix` in `ease()` or `Math.pow(mix, 0.75)` before the final line.
+- Add a **Checkbox** called `Hold at Extents` and clamp `osc` with `Math.sign(osc)` to create longer pauses at the extremes.

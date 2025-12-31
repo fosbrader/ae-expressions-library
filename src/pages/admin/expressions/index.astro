@@ -24,6 +24,7 @@ const sortedExpressions = [...expressions].sort(
             <th>Type</th>
             <th>Layer</th>
             <th>Complexity</th>
+            <th>Validation</th>
             <th>Added</th>
             <th>Actions</th>
           </tr>
@@ -45,6 +46,11 @@ const sortedExpressions = [...expressions].sort(
                 <td>
                   <span class="admin-badge" style={`background: ${complexityInfo?.color}22; color: ${complexityInfo?.color};`}>
                     {complexityInfo?.icon} {complexityInfo?.label}
+                  </span>
+                </td>
+                <td>
+                  <span class={`admin-badge ${expr.data.validated ? 'admin-badge-success' : 'admin-badge-warning'}`}>
+                    {expr.data.validated ? expr.data.validatedBy : 'Unvalidated'}
                   </span>
                 </td>
                 <td>{expr.data.dateAdded}</td>
