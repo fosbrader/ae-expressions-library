@@ -889,9 +889,10 @@ html, body {
 }
 
 .code-block {
-  background: #1e1e1e;
-  border: 1px solid var(--border-panel);
+  background: #1b1b1b;
+  border: 1px solid #2f2f2f;
   overflow-x: auto;
+  box-shadow: inset 0 1px 0 #2a2a2a;
 }
 
 .code-block pre {
@@ -901,6 +902,10 @@ html, body {
   font-size: var(--font-size-code);
   line-height: 1.5;
   counter-reset: line;
+}
+
+.code-block code {
+  color: #d7d7d7;
 }
 
 .code-line {
@@ -916,8 +921,28 @@ html, body {
   left: 0;
   width: 32px;
   text-align: right;
-  color: var(--text-muted);
+  color: #4e4e4e;
   user-select: none;
+}
+
+.code-line .token.keyword {
+  color: #52c0ff;
+}
+
+.code-line .token.string {
+  color: #f0d889;
+}
+
+.code-line .token.number {
+  color: #7ed0ff;
+}
+
+.code-line .token.function {
+  color: #7cf3c0;
+}
+
+.code-line .token.comment {
+  color: #8fb574;
 }
 
 /* Annotations */
