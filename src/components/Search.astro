@@ -5,18 +5,19 @@ interface Props {
   base: string;
 }
 
-const { base } = Astro.props;
+const baseRaw = Astro.props.base;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 const expressions = await getCollection('expressions');
 
 const searchData = expressions.map(expr => ({
-  id: expr.id,
+  id: expr.slug,
   title: expr.data.title,
   description: expr.data.description,
   code: expr.data.code,
   types: expr.data.expressionTypes,
   layer: expr.data.layerType,
   tags: expr.data.tags || [],
-  url: `${base}expressions/${expr.id}/`
+  url: `${base}expressions/${expr.slug}/`
 }));
 ---
 

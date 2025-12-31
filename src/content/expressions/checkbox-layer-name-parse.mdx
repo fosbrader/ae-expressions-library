@@ -1,0 +1,50 @@
+---
+title: "Checkbox Layer Name Parse"
+description: "Dynamically finds checkbox control based on parsing the current layer's name with underscores."
+dateAdded: "2024-12-30"
+lastUpdated: "2024-12-30"
+aeVersion: "15.0+"
+expressionTypes:
+  - linking
+  - utility
+layerType: any
+propertyType: opacity
+complexity: 2
+projects: []
+tags:
+  - checkbox
+  - parse
+  - layer-name
+  - dynamic
+code: |
+  if(thisComp.layer("CHOOSE TEAM").effect(thisLayer.name.split("_")[2]+"_"+thisLayer.name.split("_")[3])("Checkbox") ==0) 0 else 100;
+annotations:
+  - lines: "1"
+    title: "Layer Name Parsing"
+    description: "Splits the current layer's name by underscores and uses parts [2] and [3] to build the effect name. For a layer named <code>Team_Logo_Home_Primary</code>, this would look for an effect named <code>Home_Primary</code> on the <code>CHOOSE TEAM</code> layer."
+---
+
+## Usage Notes
+
+### Naming Convention
+
+Your layers must follow a consistent naming pattern with underscores:
+
+```
+Part0_Part1_Part2_Part3
+```
+
+The expression uses `Part2_Part3` to find the matching checkbox.
+
+### Example
+
+| Layer Name | Effect Name Searched |
+|------------|---------------------|
+| `Player_Card_Home_Goalkeeper` | `Home_Goalkeeper` |
+| `Team_Logo_Away_Secondary` | `Away_Secondary` |
+
+### Setup
+
+1. Create a control layer named `CHOOSE TEAM`
+2. Add Checkbox Controls with names matching your layer naming pattern
+3. Name your layers consistently with underscores

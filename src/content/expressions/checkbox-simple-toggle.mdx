@@ -1,0 +1,37 @@
+---
+title: "Checkbox Simple Toggle"
+description: "Basic checkbox toggle that switches between 0 and 100 opacity based on a checkbox control."
+dateAdded: "2024-12-30"
+lastUpdated: "2024-12-30"
+aeVersion: "15.0+"
+expressionTypes:
+  - linking
+layerType: any
+propertyType: opacity
+complexity: 1
+projects: []
+tags:
+  - checkbox
+  - toggle
+  - visibility
+  - simple
+code: |
+  if(thisComp.layer("LAYER NAME").effect("EFFECT NAME")("Checkbox")==0) {0} else {100};
+annotations:
+  - lines: "1"
+    title: "Checkbox Conditional"
+    description: "Reads a Checkbox control from another layer. If unchecked (0), returns 0 opacity. If checked (1), returns 100 opacity. Replace <code>LAYER NAME</code> and <code>EFFECT NAME</code> with your actual layer and effect names."
+---
+
+## Usage Notes
+
+### Setup
+
+1. Add a **Checkbox Control** effect to your control layer
+2. Name the effect something descriptive
+3. Apply this expression to the **Opacity** property of the layer you want to toggle
+
+### Customization
+
+- Swap `0` and `100` to invert the behavior (checked = hidden)
+- Use on other properties by changing the output values (e.g., `[0,0,0]` and `[100,100,100]` for scale)

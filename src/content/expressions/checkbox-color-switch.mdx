@@ -1,0 +1,55 @@
+---
+title: "Checkbox Color Switch"
+description: "Switches fill color to white when checkbox is checked, otherwise keeps current value."
+dateAdded: "2024-12-30"
+lastUpdated: "2024-12-30"
+aeVersion: "15.0+"
+expressionTypes:
+  - color
+  - linking
+layerType: shape
+propertyType: fill-color
+complexity: 1
+projects: []
+tags:
+  - checkbox
+  - color
+  - white
+  - black
+  - logo
+code: |
+  if (thisComp.layer("CONTROL").effect("LOGO BLACK/WHITE")("Checkbox") == 1){
+  ([255, 255, 255, 1]/255)
+  }else{
+  value
+  }
+annotations:
+  - lines: "1"
+    title: "Checkbox Check"
+    description: "Reads the <code>LOGO BLACK/WHITE</code> checkbox from the <code>CONTROL</code> layer. If checked (== 1), applies white color."
+  - lines: "2"
+    title: "White Color Value"
+    description: "Returns white as RGBA. The <code>/255</code> normalizes the 0-255 values to AE's 0-1 color space."
+  - lines: "3-4"
+    title: "Fallback to Current Value"
+    description: "If unchecked, returns <code>value</code> — the property's current keyframed or static color."
+---
+
+## Usage Notes
+
+### Common Use Case
+
+Perfect for logos that need to switch between color/black versions and white versions depending on background.
+
+### Customization
+
+Change the color by modifying the RGB values:
+- **Black:** `[0, 0, 0, 1]/255`
+- **White:** `[255, 255, 255, 1]/255`
+- **Red:** `[255, 0, 0, 1]/255`
+
+### Apply To
+
+- Shape layer **Fill Color**
+- Text layer **Fill Color**
+- Any color property

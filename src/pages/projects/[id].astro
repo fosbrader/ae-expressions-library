@@ -1,0 +1,133 @@
+---
+import IDELayout from '../../layouts/IDELayout.astro';
+import { getCollection } from 'astro:content';
+import categories from '../../data/categories.json';
+import projects from '../../data/projects.json';
+
+export function getStaticPaths() {
+  return projects.projects.map(proj => ({
+    params: { id: proj.id },
+    props: { project: proj }
+  }));
+}
+
+interface Props {
+  project: typeof projects.projects[0];
+}
+
+const { project } = Astro.props;
+const baseRaw = import.meta.env.BASE_URL;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
+
+const allExpressions = await getCollection('expressions');
+const projectExpressions = allExpressions.filter(expr => 
+  expr.data.projects.includes(project.id)
+);
+---
+
+<IDELayout title={project.name} activeTab={`project-${project.id}`}>
+  <div class="project-page">
+    <header class="project-header">
+      <h1 class="project-title">📁 {project.name}</h1>
+      <p class="project-description">{project.description}</p>
+      <div class="project-meta">
+        <span class="project-meta-item">
+          <span class="meta-label">Client:</span>
+          <span class="meta-value">{project.client}</span>
+        </span>
+        <span class="project-meta-item">
+          <span class="meta-label">Year:</span>
+          <span class="meta-value">{project.year}</span>
+        </span>
+        <span class="project-meta-item">
+          <span class="meta-label">Expressions:</span>
+          <span class="meta-value">{projectExpressions.length}</span>
+        </span>
+      </div>
+    </header>
+    
+    {projectExpressions.length > 0 ? (
+      <>
+        <div class="expression-list-header">
+          <span>Name</span>
+          <span>Type</span>
+          <span>Layer</span>
+          <span>Level</span>
+          <span>Added</span>
+        </div>
+        <div class="expression-list">
+          {projectExpressions.map(expr => {
+            const typeInfo = categories.expressionTypes.find(t => t.id === expr.data.expressionTypes[0]);
+            const layerInfo = categories.layerTypes.find(l => l.id === expr.data.layerType);
+            return (
+              <a href={`${base}expressions/${expr.slug}/`} class="expression-row">
+                <span class="expression-row-title">{expr.data.title}</span>
+                <span class="expression-row-type">{typeInfo?.icon} {typeInfo?.label}</span>
+                <span class="expression-row-layer">{layerInfo?.icon} {layerInfo?.label}</span>
+                <span class="expression-row-complexity">
+                  {[1, 2, 3, 4].map(level => (
+                    <span class={`complexity-pip ${level <= expr.data.complexity ? `filled level-${expr.data.complexity}` : ''}`} />
+                  ))}
+                </span>
+                <span class="expression-row-date">{expr.data.dateAdded}</span>
+              </a>
+            );
+          })}
+        </div>
+      </>
+    ) : (
+      <div class="empty-state">
+        <p>No expressions linked to this project yet.</p>
+      </div>
+    )}
+  </div>
+</IDELayout>
+
+<style>
+  .project-page {
+    max-width: 100%;
+  }
+  
+  .project-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-panel);
+  }
+  
+  .project-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  
+  .project-description {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  
+  .project-meta {
+    display: flex;
+    gap: 24px;
+  }
+  
+  .project-meta-item {
+    display: flex;
+    gap: 8px;
+    font-size: var(--font-size-small);
+  }
+  
+  .meta-label {
+    color: var(--text-muted);
+  }
+  
+  .meta-value {
+    color: var(--text-primary);
+  }
+  
+  .empty-state {
+    padding: 48px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+</style>

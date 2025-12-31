@@ -1,0 +1,58 @@
+---
+title: "Checkbox Same-Comp Parse"
+description: "Parses layer name to find matching checkbox control within the same composition."
+dateAdded: "2024-12-30"
+lastUpdated: "2024-12-30"
+aeVersion: "15.0+"
+expressionTypes:
+  - linking
+  - utility
+layerType: any
+propertyType: opacity
+complexity: 2
+projects: []
+tags:
+  - checkbox
+  - parse
+  - same-comp
+  - layer-name
+code: |
+  OnOff = thisComp.layer("CHOOSE TEAM CONTROL").effect(thisLayer.name.split("_")[0]+"_"+thisLayer.name.split("_")[1])("Checkbox")
+  if (OnOff==1){
+  100
+  }
+  else{
+  0;
+  }
+annotations:
+  - lines: "1"
+    title: "Same-Comp Checkbox Lookup"
+    description: "Finds the <code>CHOOSE TEAM CONTROL</code> layer in the current comp, then looks for a checkbox effect named after the first two parts of the current layer's name. For layer <code>Player_Card_v2</code>, looks for effect <code>Player_Card</code>."
+  - lines: "2-6"
+    title: "Visibility Toggle"
+    description: "Returns 100 (visible) when checked, 0 (hidden) when unchecked."
+---
+
+## Usage Notes
+
+### Simpler Alternative
+
+This is a simpler version of the cross-comp parse — all controls stay within the same comp.
+
+### Setup
+
+1. Create a control layer named `CHOOSE TEAM CONTROL` in your comp
+2. Add Checkbox Controls for each element you want to toggle
+3. Name checkboxes to match your layer naming pattern
+
+### Example
+
+| Layer Name | Checkbox Effect Name |
+|------------|---------------------|
+| `Player_Name_Home` | `Player_Name` |
+| `Team_Logo_Away` | `Team_Logo` |
+| `Score_Display_Main` | `Score_Display` |
+
+### Pro Tip
+
+You can add a third or fourth underscore segment to the layer name for variants without affecting the checkbox lookup (it only uses parts 0 and 1).

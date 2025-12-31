@@ -202,15 +202,22 @@ html, body {
   cursor: pointer;
   position: relative;
   color: var(--text-muted);
-  font-size: 22px;
+  text-decoration: none;
 }
 
-.activitybar-icon:hover {
-  color: var(--text-primary);
+.activitybar-icon svg {
+  width: 24px;
+  height: 24px;
+  opacity: 0.6;
+  transition: opacity 0.15s;
 }
 
-.activitybar-icon.active {
-  color: var(--text-primary);
+.activitybar-icon:hover svg {
+  opacity: 1;
+}
+
+.activitybar-icon.active svg {
+  opacity: 1;
 }
 
 .activitybar-icon.active::before {
@@ -304,7 +311,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px 2px 20px;
+  padding: 0 8px 0 16px;
+  height: 22px;
   cursor: pointer;
   color: var(--text-primary);
 }
@@ -313,18 +321,26 @@ html, body {
   background: var(--bg-hover);
 }
 
-.tree-folder-icon {
-  font-size: 10px;
+.tree-folder-header .tree-chevron {
+  font-size: 11px;
   color: var(--text-muted);
   transition: transform 0.1s;
+  width: 12px;
+  text-align: center;
 }
 
-.tree-folder.open > .tree-folder-header .tree-folder-icon {
+.tree-folder.open > .tree-folder-header .tree-chevron {
   transform: rotate(90deg);
 }
 
-.folder-icon {
-  font-size: 16px;
+.folder-svg {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.folder-label {
+  flex: 1;
 }
 
 .tree-folder-children {
@@ -338,11 +354,13 @@ html, body {
 .tree-file {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 8px 2px 44px;
+  gap: 4px;
+  padding: 0 8px 0 36px;
+  height: 22px;
   cursor: pointer;
   text-decoration: none;
   color: var(--text-primary);
+  font-size: 13px;
 }
 
 .tree-file:hover {
@@ -353,14 +371,12 @@ html, body {
   background: var(--bg-selected);
 }
 
-.file-icon {
-  font-size: 14px;
+.file-svg {
   flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  transform: scale(0.75);
 }
-
-.file-icon.jsx { color: #519aba; }
-.file-icon.json { color: #cbcb41; }
-.file-icon.md { color: #519aba; }
 
 .file-name {
   white-space: nowrap;

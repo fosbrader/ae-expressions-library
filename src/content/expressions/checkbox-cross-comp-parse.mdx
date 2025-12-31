@@ -1,0 +1,64 @@
+---
+title: "Checkbox Cross-Comp Parse"
+description: "Parses layer and comp names to find checkbox controls across compositions in a master control comp."
+dateAdded: "2024-12-30"
+lastUpdated: "2024-12-30"
+aeVersion: "15.0+"
+expressionTypes:
+  - linking
+  - utility
+layerType: any
+propertyType: opacity
+complexity: 3
+projects: []
+tags:
+  - checkbox
+  - parse
+  - cross-comp
+  - master-control
+  - advanced
+code: |
+  OnOff = comp("_CONTROL").layer(thisComp.name.split("_")[0]+" "+"TEAM CONTROL").effect(thisLayer.name.split("_")[0]+"_"+thisLayer.name.split("_")[1])("Checkbox")
+  if (OnOff==1){
+  100
+  }
+  else{
+  0;
+  }
+annotations:
+  - lines: "1"
+    title: "Cross-Comp Checkbox Lookup"
+    description: "Navigates to <code>_CONTROL</code> comp, finds a layer based on the current comp's name prefix + <code>TEAM CONTROL</code>, then finds a checkbox effect based on the layer's name parts. For comp <code>Home_Endcard</code> and layer <code>Player_Card</code>, looks for layer <code>Home TEAM CONTROL</code> and effect <code>Player_Card</code>."
+  - lines: "2-6"
+    title: "Visibility Toggle"
+    description: "Standard if/else returning 100 (visible) when checked, 0 (hidden) when unchecked."
+---
+
+## Usage Notes
+
+### Project Structure
+
+This expression expects a specific project organization:
+
+```
+_CONTROL (comp)
+├── Home TEAM CONTROL (layer with checkbox effects)
+├── Away TEAM CONTROL (layer with checkbox effects)
+└── ...
+
+Home_Endcard (comp)
+├── Player_Card (layer with this expression)
+└── ...
+```
+
+### Naming Requirements
+
+1. **Comp names:** `TeamName_Purpose` (e.g., `Home_Endcard`)
+2. **Control layers:** `TeamName TEAM CONTROL` (e.g., `Home TEAM CONTROL`)
+3. **Layer names:** `Part0_Part1` (e.g., `Player_Card`)
+4. **Checkbox effects:** Match layer name pattern (e.g., `Player_Card`)
+
+### When to Use
+
+- Large template systems with multiple team/variant comps
+- Centralized control panel for toggling elements across all comps

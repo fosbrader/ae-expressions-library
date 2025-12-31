@@ -13,7 +13,8 @@ interface Props {
 }
 
 const { title, activeTab, showBreadcrumb = false, breadcrumbPath = '' } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const baseRaw = import.meta.env.BASE_URL;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 
 const expressions = await getCollection('expressions');
 const expressionCount = expressions.length;
@@ -32,6 +33,12 @@ expressions.forEach(expr => {
   }
   groupedExpressions[type].push(expr);
 });
+
+// Version tracking
+const siteVersion = "0.1.8";
+const buildDate = new Date().toISOString().split('T')[0];
+const isDev = import.meta.env.DEV;
+const versionDisplay = isDev ? `${siteVersion}-dev` : siteVersion;
 
 // Terminal messages
 const terminalMessages = [
@@ -77,14 +84,16 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
       <aside class="activitybar">
         <div class="activitybar-top">
           <a href={`${base}`} class={`activitybar-icon ${activeTab === 'home' ? 'active' : ''}`} title="Explorer">
-            📁
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 0h-9L7 1.5V6H2.5L1 7.5v15.07L2.5 24h12.07L16 22.57V18h4.7l1.3-1.43V4.5L17.5 0zm0 2.12l2.38 2.38H17.5V2.12zm-3 20.38h-12v-15H7v9.07L8.5 18h6v4.5zm6-6h-12v-15H16v4.5h4.5v10.5z"/></svg>
           </a>
           <a href={`${base}all/`} class={`activitybar-icon ${activeTab === 'all' ? 'active' : ''}`} title="Search">
-            🔍
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M15.25 0a8.25 8.25 0 0 0-6.18 13.72L1 22.88l1.12 1.12 8.05-9.12A8.251 8.251 0 1 0 15.25.01V0zm0 15a6.75 6.75 0 1 1 0-13.5 6.75 6.75 0 0 1 0 13.5z"/></svg>
           </a>
         </div>
         <div class="activitybar-bottom">
-          <span class="activitybar-icon" title="Settings">⚙️</span>
+          <span class="activitybar-icon" title="Settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.85 8.75l4.15.83v4.84l-4.15.83 2.35 3.52-3.43 3.43-3.52-2.35-.83 4.15H9.58l-.83-4.15-3.52 2.35-3.43-3.43 2.35-3.52L0 13.42V8.58l4.15-.83L1.8 4.23 5.23 1.8l3.52 2.35L9.58 0h4.84l.83 4.15 3.52-2.35 3.43 3.43-2.35 3.52zM12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+          </span>
         </div>
       </aside>
       
@@ -94,30 +103,30 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
         <nav class="sidebar-content">
           <ul class="file-tree">
             <!-- Expressions section -->
-            <li class="tree-section open">
+            <li class="tree-section">
               <div class="tree-section-header">
-                <span class="tree-chevron">▶</span>
+                <span class="tree-chevron">›</span>
                 <span>Expressions</span>
               </div>
               <ul class="tree-children">
                 {Object.entries(groupedExpressions).map(([typeId, exprs]) => {
                   const typeInfo = categories.expressionTypes.find(t => t.id === typeId);
                   return (
-                    <li class="tree-folder open">
+                    <li class="tree-folder">
                       <div class="tree-folder-header">
-                        <span class="tree-folder-icon">▶</span>
-                        <span class="folder-icon">📂</span>
-                        <span>{typeInfo?.label || typeId}</span>
+                        <span class="tree-chevron">›</span>
+                        <svg class="folder-svg" width="16" height="16" viewBox="0 0 16 16" fill="#dcb67a"><path d="M14.5 3H7.71l-.85-.85L6.51 2h-5l-.5.5v11l.5.5h13l.5-.5v-10L14.5 3zm-.51 8.49V13h-12V3h4.29l.85.85.36.15H14v7.49z"/></svg>
+                        <span class="folder-label">{typeInfo?.label || typeId}</span>
                       </div>
                       <ul class="tree-folder-children">
                         {exprs.map(expr => (
                           <li>
                             <a 
-                              href={`${base}expressions/${expr.id}/`}
-                              class={`tree-file ${activeTab === expr.id ? 'active' : ''}`}
+                              href={`${base}expressions/${expr.slug}/`}
+                              class={`tree-file ${activeTab === expr.slug ? 'active' : ''}`}
                             >
-                              <span class="file-icon jsx">◇</span>
-                              <span class="file-name">{expr.data.title}.jsx</span>
+                              <svg class="file-svg" width="16" height="16" viewBox="0 0 16 16" fill="#f0db4f"><path d="M10 0L6 0 0 6v9.5l.5.5h15l.5-.5v-15L10 0zm4 15H2V6.5L5.5 3H14v12z"/></svg>
+                              <span class="file-name">{expr.data.title}</span>
                             </a>
                           </li>
                         ))}
@@ -131,14 +140,17 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
             <!-- Projects section -->
             <li class="tree-section">
               <div class="tree-section-header">
-                <span class="tree-chevron">▶</span>
+                <span class="tree-chevron">›</span>
                 <span>Projects</span>
               </div>
               <ul class="tree-children">
                 {projects.projects.map(proj => (
                   <li>
-                    <a href={`${base}projects/${proj.id}/`} class="tree-file">
-                      <span class="file-icon json">◈</span>
+                    <a 
+                      href={`${base}projects/${proj.id}/`} 
+                      class={`tree-file ${activeTab === `project-${proj.id}` ? 'active' : ''}`}
+                    >
+                      <svg class="file-svg" width="16" height="16" viewBox="0 0 16 16" fill="#6997d5"><path d="M14.5 3H7.71l-.85-.85L6.51 2h-5l-.5.5v11l.5.5h13l.5-.5v-10L14.5 3zm-.51 8.49V13h-12V3h4.29l.85.85.36.15H14v7.49z"/></svg>
                       <span class="file-name">{proj.name}</span>
                     </a>
                   </li>
@@ -209,9 +221,12 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
           <span class="terminal-cmd">$ status</span>
         </div>
         <div class="terminal-output terminal-success">✓ {randomMessage}</div>
+        <div class="terminal-output terminal-info">📦 Version: {versionDisplay} (built {buildDate})</div>
         <div class="terminal-output terminal-info">📊 {expressionCount} expressions loaded</div>
-        <div class="terminal-output terminal-info">📅 Last sync: {lastUpdated}</div>
         <div class="terminal-output">💡 Press ⌘K to search</div>
+        <div class="terminal-output" style="margin-top: 8px; color: var(--text-muted); font-style: italic;">
+          Happily vibe-coded by Brad using Opus 4.5 in Cursor ✨
+        </div>
         <div class="terminal-line" style="margin-top: 8px;">
           <span class="terminal-prompt">~/expressions</span>
           <span class="terminal-cmd">$ <span id="cursor">_</span></span>
