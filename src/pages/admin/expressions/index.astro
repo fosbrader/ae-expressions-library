@@ -1,0 +1,68 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getCollection } from 'astro:content';
+import categories from '../../../data/categories.json';
+
+const expressions = await getCollection('expressions');
+const sortedExpressions = [...expressions].sort(
+  (a, b) => new Date(b.data.dateAdded).getTime() - new Date(a.data.dateAdded).getTime()
+);
+---
+
+<AdminLayout title="Expressions" activeTab="expressions">
+  <a href="/admin/expressions/new/" slot="actions" class="admin-btn admin-btn-primary">
+    + New Expression
+  </a>
+  
+  <div class="admin-card">
+    <div class="admin-card-body" style="padding: 0;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Layer</th>
+            <th>Complexity</th>
+            <th>Added</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedExpressions.map(expr => {
+            const typeInfo = categories.expressionTypes.find(t => t.id === expr.data.expressionTypes[0]);
+            const layerInfo = categories.layerTypes.find(l => l.id === expr.data.layerType);
+            const complexityInfo = categories.complexityLevels.find(c => c.id === expr.data.complexity);
+            return (
+              <tr>
+                <td><code style="font-size: 11px; color: var(--text-muted);">{expr.data.id}</code></td>
+                <td>
+                  <strong>{expr.data.title}</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">{expr.slug}</div>
+                </td>
+                <td><span class="admin-badge">{typeInfo?.label || expr.data.expressionTypes[0]}</span></td>
+                <td>{layerInfo?.label || expr.data.layerType}</td>
+                <td>
+                  <span class="admin-badge" style={`background: ${complexityInfo?.color}22; color: ${complexityInfo?.color};`}>
+                    {complexityInfo?.icon} {complexityInfo?.label}
+                  </span>
+                </td>
+                <td>{expr.data.dateAdded}</td>
+                <td>
+                  <div style="display: flex; gap: 4px;">
+                    <a href={`/admin/expressions/${expr.data.id}/`} class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
+                      Edit
+                    </a>
+                    <a href={`/expressions/${expr.slug}/`} target="_blank" class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
+                      View
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</AdminLayout>

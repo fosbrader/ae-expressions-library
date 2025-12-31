@@ -1,0 +1,375 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import versionData from '../../data/version.json';
+---
+
+<AdminLayout title="Deploy" activeTab="deploy">
+  <div class="deploy-grid">
+    <div class="deploy-main">
+      <div class="admin-card">
+        <div class="admin-card-header">
+          Git Status
+          <button id="refresh-status" class="admin-btn admin-btn-secondary" style="float: right; padding: 4px 8px; font-size: 11px;">
+            🔄 Refresh
+          </button>
+        </div>
+        <div class="admin-card-body">
+          <div id="git-status" class="status-loading">
+            <div class="loading-spinner"></div>
+            Loading git status...
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-card">
+        <div class="admin-card-header">Commit & Deploy</div>
+        <div class="admin-card-body">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Commit Message *</label>
+            <input type="text" id="commit-message" class="admin-form-input" placeholder="e.g., Add new expressions, fix bug in ticker">
+            <div class="admin-form-hint">Describe what changes you're deploying</div>
+          </div>
+          
+          <div class="admin-form-group">
+            <label class="admin-form-label">Version Update (optional)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="new-version" class="admin-form-input" style="width: 150px;" placeholder={versionData.local}>
+              <span style="color: var(--text-muted); font-size: 12px;">Current: v{versionData.local}</span>
+            </div>
+            <div class="admin-form-hint">Leave blank to keep current version</div>
+          </div>
+          
+          <button id="deploy-btn" class="admin-btn admin-btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+            🚀 Commit & Push to GitHub
+          </button>
+          
+          <div id="deploy-result" class="deploy-result" style="display: none;"></div>
+        </div>
+      </div>
+      
+      <div class="admin-card">
+        <div class="admin-card-header">Recent Commits</div>
+        <div class="admin-card-body" style="padding: 0;">
+          <div id="recent-commits" class="commits-list">
+            <div class="status-loading" style="padding: 16px;">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="deploy-sidebar">
+      <div class="admin-card">
+        <div class="admin-card-header">Version Info</div>
+        <div class="admin-card-body">
+          <div class="version-item">
+            <span class="version-label">Public Version</span>
+            <span class="version-value">v{versionData.public}</span>
+          </div>
+          <div class="version-item">
+            <span class="version-label">Local Version</span>
+            <span class="version-value">v{versionData.local}</span>
+          </div>
+          <div class="version-item">
+            <span class="version-label">Total Deploys</span>
+            <span class="version-value">{versionData.deployCount}</span>
+          </div>
+          <div class="version-item">
+            <span class="version-label">Last Deploy</span>
+            <span class="version-value" style="font-size: 11px;">{new Date(versionData.lastDeployed).toLocaleString()}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-card">
+        <div class="admin-card-header">Quick Actions</div>
+        <div class="admin-card-body">
+          <a href="https://github.com/fosbrader/ae-expressions-library/actions" target="_blank" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center; margin-bottom: 8px;">
+            📊 GitHub Actions
+          </a>
+          <a href="https://fosbrader.github.io/ae-expressions-library/" target="_blank" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center;">
+            🌐 Live Site
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .deploy-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+  }
+  
+  .deploy-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .deploy-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .status-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-subtle);
+    border-top-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .git-status-clean {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent-green);
+    font-size: 13px;
+  }
+  
+  .git-status-dirty {
+    font-size: 13px;
+  }
+  
+  .file-list {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: var(--bg-input);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+  }
+  
+  .file-status {
+    font-size: 10px;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+  
+  .file-status.modified { background: rgba(220, 220, 170, 0.2); color: var(--accent-yellow); }
+  .file-status.added { background: rgba(78, 201, 176, 0.2); color: var(--accent-green); }
+  .file-status.deleted { background: rgba(241, 76, 76, 0.2); color: var(--accent-red); }
+  
+  .commits-list {
+    font-size: 13px;
+  }
+  
+  .commit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-panel);
+  }
+  
+  .commit-item:last-child {
+    border-bottom: none;
+  }
+  
+  .commit-hash {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-blue);
+    background: rgba(100, 150, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+  
+  .commit-message {
+    flex: 1;
+    color: var(--text-primary);
+  }
+  
+  .commit-date {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  
+  .version-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-panel);
+  }
+  
+  .version-item:last-child {
+    border-bottom: none;
+  }
+  
+  .version-label {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  
+  .version-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  
+  .deploy-result {
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  
+  .deploy-result.success {
+    background: rgba(78, 201, 176, 0.1);
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+  }
+  
+  .deploy-result.error {
+    background: rgba(241, 76, 76, 0.1);
+    border: 1px solid var(--accent-red);
+    color: var(--accent-red);
+  }
+</style>
+
+<script>
+  async function loadGitStatus() {
+    const statusEl = document.getElementById('git-status');
+    const commitsEl = document.getElementById('recent-commits');
+    
+    try {
+      const res = await fetch('/api/deploy');
+      const data = await res.json();
+      
+      // Render status
+      if (data.status.isClean) {
+        statusEl!.innerHTML = `
+          <div class="git-status-clean">
+            <span style="font-size: 18px;">✓</span>
+            Working directory clean - nothing to commit
+          </div>
+        `;
+      } else {
+        const allChanges = [
+          ...data.status.modified.map(f => ({ file: f, status: 'modified' })),
+          ...data.status.created.map(f => ({ file: f, status: 'added' })),
+          ...data.status.not_added.map(f => ({ file: f, status: 'added' })),
+          ...data.status.deleted.map(f => ({ file: f, status: 'deleted' })),
+          ...data.status.staged.map(f => ({ file: f, status: 'staged' }))
+        ];
+        
+        statusEl!.innerHTML = `
+          <div class="git-status-dirty">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span style="color: var(--accent-yellow);">⚠</span>
+              <strong>${allChanges.length} file(s) changed</strong>
+              ${data.status.ahead > 0 ? `<span style="color: var(--accent-blue);">(${data.status.ahead} commit(s) ahead)</span>` : ''}
+            </div>
+            <div class="file-list">
+              ${allChanges.map(c => `
+                <div class="file-item">
+                  <span class="file-status ${c.status}">${c.status.charAt(0).toUpperCase()}</span>
+                  ${c.file}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      // Render commits
+      commitsEl!.innerHTML = data.recentCommits.map(c => `
+        <div class="commit-item">
+          <span class="commit-hash">${c.hash}</span>
+          <span class="commit-message">${c.message}</span>
+          <span class="commit-date">${new Date(c.date).toLocaleDateString()}</span>
+        </div>
+      `).join('');
+      
+    } catch (error) {
+      statusEl!.innerHTML = `<div style="color: var(--accent-red);">Failed to load git status</div>`;
+    }
+  }
+  
+  // Load on page load
+  loadGitStatus();
+  
+  // Refresh button
+  document.getElementById('refresh-status')?.addEventListener('click', loadGitStatus);
+  
+  // Deploy button
+  document.getElementById('deploy-btn')?.addEventListener('click', async () => {
+    const commitMessage = (document.getElementById('commit-message') as HTMLInputElement).value;
+    const newVersion = (document.getElementById('new-version') as HTMLInputElement).value;
+    const resultEl = document.getElementById('deploy-result');
+    const deployBtn = document.getElementById('deploy-btn') as HTMLButtonElement;
+    
+    if (!commitMessage) {
+      alert('Please enter a commit message');
+      return;
+    }
+    
+    deployBtn.disabled = true;
+    deployBtn.textContent = '⏳ Deploying...';
+    resultEl!.style.display = 'none';
+    
+    try {
+      const res = await fetch('/api/deploy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          commitMessage,
+          newVersion: newVersion || undefined
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        resultEl!.className = 'deploy-result success';
+        resultEl!.innerHTML = `✓ ${data.message}<br><small>Commit: "${data.commitMessage}"</small>`;
+        resultEl!.style.display = 'block';
+        
+        // Reload status
+        loadGitStatus();
+        
+        // Clear inputs
+        (document.getElementById('commit-message') as HTMLInputElement).value = '';
+        (document.getElementById('new-version') as HTMLInputElement).value = '';
+      } else {
+        resultEl!.className = 'deploy-result error';
+        resultEl!.textContent = '✕ ' + data.message;
+        resultEl!.style.display = 'block';
+      }
+    } catch (error) {
+      resultEl!.className = 'deploy-result error';
+      resultEl!.textContent = '✕ Deploy failed';
+      resultEl!.style.display = 'block';
+    } finally {
+      deployBtn.disabled = false;
+      deployBtn.textContent = '🚀 Commit & Push to GitHub';
+    }
+  });
+</script>

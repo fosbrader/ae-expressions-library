@@ -1,0 +1,256 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import versionData from '../../data/version.json';
+---
+
+<AdminLayout title="Settings" activeTab="settings">
+  <div class="settings-grid">
+    <div class="settings-main">
+      <div class="admin-card">
+        <div class="admin-card-header">Version Management</div>
+        <div class="admin-card-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Public Version</label>
+              <input type="text" id="public-version" class="admin-form-input" value={versionData.public}>
+              <div class="admin-form-hint">Version shown to users (no -dev suffix)</div>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Local Version</label>
+              <input type="text" id="local-version" class="admin-form-input" value={versionData.local}>
+              <div class="admin-form-hint">Development version (can include -dev, -beta, etc.)</div>
+            </div>
+          </div>
+          
+          <button id="save-version" class="admin-btn admin-btn-primary">
+            💾 Save Version
+          </button>
+          
+          <div id="version-result" class="version-result" style="display: none;"></div>
+        </div>
+      </div>
+      
+      <div class="admin-card">
+        <div class="admin-card-header">Version History</div>
+        <div class="admin-card-body">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Total Deploys</td>
+                <td><strong>{versionData.deployCount}</strong></td>
+              </tr>
+              <tr>
+                <td>Last Deploy</td>
+                <td>{new Date(versionData.lastDeployed).toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td>Current Public</td>
+                <td><code>v{versionData.public}</code></td>
+              </tr>
+              <tr>
+                <td>Current Local</td>
+                <td><code>v{versionData.local}</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="admin-card">
+        <div class="admin-card-header">Version Guidelines</div>
+        <div class="admin-card-body guidelines">
+          <h4>Semantic Versioning (SemVer)</h4>
+          <p>Use the format <code>MAJOR.MINOR.PATCH</code></p>
+          <ul>
+            <li><strong>MAJOR</strong> - Breaking changes or major redesigns</li>
+            <li><strong>MINOR</strong> - New features, backwards compatible</li>
+            <li><strong>PATCH</strong> - Bug fixes and small improvements</li>
+          </ul>
+          
+          <h4>Pre-release Tags</h4>
+          <ul>
+            <li><code>0.3.0-dev</code> - Development version</li>
+            <li><code>0.3.0-beta</code> - Beta testing</li>
+            <li><code>0.3.0-rc.1</code> - Release candidate</li>
+          </ul>
+          
+          <h4>When to Increment</h4>
+          <ul>
+            <li><strong>PATCH</strong>: Fix a bug, update styles, minor tweaks</li>
+            <li><strong>MINOR</strong>: Add new expressions, new features, new pages</li>
+            <li><strong>MAJOR</strong>: Complete redesign, change URL structure, breaking changes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="settings-sidebar">
+      <div class="admin-card">
+        <div class="admin-card-header">Quick Version Bumps</div>
+        <div class="admin-card-body">
+          <button class="version-bump-btn admin-btn admin-btn-secondary" data-type="patch" style="width: 100%; margin-bottom: 8px;">
+            📌 Bump Patch
+          </button>
+          <button class="version-bump-btn admin-btn admin-btn-secondary" data-type="minor" style="width: 100%; margin-bottom: 8px;">
+            ✨ Bump Minor
+          </button>
+          <button class="version-bump-btn admin-btn admin-btn-secondary" data-type="major" style="width: 100%;">
+            🚀 Bump Major
+          </button>
+        </div>
+      </div>
+      
+      <div class="admin-card">
+        <div class="admin-card-header">Admin Info</div>
+        <div class="admin-card-body">
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0;">
+            This admin portal is only available in development mode. 
+            It won't be included in the production build.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+  }
+  
+  .settings-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .settings-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .version-result {
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  
+  .version-result.success {
+    background: rgba(78, 201, 176, 0.1);
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+  }
+  
+  .version-result.error {
+    background: rgba(241, 76, 76, 0.1);
+    border: 1px solid var(--accent-red);
+    color: var(--accent-red);
+  }
+  
+  .guidelines {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  
+  .guidelines h4 {
+    margin: 16px 0 8px 0;
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+  
+  .guidelines h4:first-child {
+    margin-top: 0;
+  }
+  
+  .guidelines p {
+    color: var(--text-secondary);
+    margin: 0 0 8px 0;
+  }
+  
+  .guidelines ul {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-secondary);
+  }
+  
+  .guidelines li {
+    margin-bottom: 4px;
+  }
+  
+  .guidelines code {
+    background: var(--bg-input);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+</style>
+
+<script>
+  function parseVersion(version: string): [number, number, number, string] {
+    const match = version.match(/^(\d+)\.(\d+)\.(\d+)(-.*)?$/);
+    if (!match) return [0, 0, 0, ''];
+    return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3]), match[4] || ''];
+  }
+  
+  function bumpVersion(version: string, type: 'major' | 'minor' | 'patch'): string {
+    const [major, minor, patch, suffix] = parseVersion(version);
+    switch (type) {
+      case 'major': return `${major + 1}.0.0`;
+      case 'minor': return `${major}.${minor + 1}.0`;
+      case 'patch': return `${major}.${minor}.${patch + 1}`;
+    }
+  }
+  
+  // Save version
+  document.getElementById('save-version')?.addEventListener('click', async () => {
+    const publicVersion = (document.getElementById('public-version') as HTMLInputElement).value;
+    const localVersion = (document.getElementById('local-version') as HTMLInputElement).value;
+    const resultEl = document.getElementById('version-result');
+    
+    try {
+      const res = await fetch('/api/version', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ public: publicVersion, local: localVersion })
+      });
+      
+      if (res.ok) {
+        resultEl!.className = 'version-result success';
+        resultEl!.textContent = '✓ Version saved successfully';
+        resultEl!.style.display = 'block';
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch (err) {
+      resultEl!.className = 'version-result error';
+      resultEl!.textContent = '✕ Failed to save version';
+      resultEl!.style.display = 'block';
+    }
+  });
+  
+  // Version bump buttons
+  document.querySelectorAll('.version-bump-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.getAttribute('data-type') as 'major' | 'minor' | 'patch';
+      const publicInput = document.getElementById('public-version') as HTMLInputElement;
+      const localInput = document.getElementById('local-version') as HTMLInputElement;
+      
+      const newPublic = bumpVersion(publicInput.value, type);
+      const newLocal = newPublic + '-dev';
+      
+      publicInput.value = newPublic;
+      localInput.value = newLocal;
+    });
+  });
+</script>
