@@ -76,10 +76,13 @@ const highlightedLines = code
 <div class="code-section">
   <div class="code-header">
     <span class="code-filename">{filename}</span>
-    <button class="code-copy-btn" data-code={code}>📋 Copy</button>
+    <div class="code-actions">
+      <button class="code-wrap-toggle" type="button">Wrap lines: Off</button>
+      <button class="code-copy-btn" data-code={code} type="button">📋 Copy</button>
+    </div>
   </div>
-  
-  <div class="code-block">
+
+  <div class="code-block" data-wrap="false">
     <pre><code>{highlightedLines.map((line) => (
       <span class="code-line" set:html={line}></span>
     ))}</code></pre>
@@ -87,24 +90,49 @@ const highlightedLines = code
 </div>
 
 <script>
-  const buttons = document.querySelectorAll('.code-copy-btn');
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const code = btn.getAttribute('data-code') || '';
-      try {
-        await navigator.clipboard.writeText(code);
-        btn.textContent = '✓ Copied';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.textContent = '📋 Copy';
-          btn.classList.remove('copied');
-        }, 2000);
-      } catch (err) {
-        btn.textContent = '❌ Failed';
-        setTimeout(() => {
-          btn.textContent = '📋 Copy';
-        }, 2000);
-      }
-    });
+  const codeSections = document.querySelectorAll('.code-section');
+
+  codeSections.forEach((section) => {
+    const copyButton = section.querySelector('.code-copy-btn');
+    const wrapButton = section.querySelector('.code-wrap-toggle');
+    const codeBlock = section.querySelector('.code-block');
+
+    if (copyButton) {
+      copyButton.addEventListener('click', async () => {
+        const code = copyButton.getAttribute('data-code') || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          copyButton.textContent = '✓ Copied';
+          copyButton.classList.add('copied');
+          setTimeout(() => {
+            copyButton.textContent = '📋 Copy';
+            copyButton.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          copyButton.textContent = '❌ Failed';
+          setTimeout(() => {
+            copyButton.textContent = '📋 Copy';
+          }, 2000);
+        }
+      });
+    }
+
+    if (wrapButton && codeBlock) {
+      let isWrapped = false;
+
+      const updateWrapState = () => {
+        codeBlock.classList.toggle('wrap-lines', isWrapped);
+        codeBlock.setAttribute('data-wrap', String(isWrapped));
+        wrapButton.textContent = isWrapped ? 'Wrap lines: On' : 'Wrap lines: Off';
+        wrapButton.setAttribute('aria-pressed', String(isWrapped));
+      };
+
+      wrapButton.addEventListener('click', () => {
+        isWrapped = !isWrapped;
+        updateWrapState();
+      });
+
+      updateWrapState();
+    }
   });
 </script>
