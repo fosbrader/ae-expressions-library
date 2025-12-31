@@ -1272,6 +1272,277 @@ html, body {
   color: var(--text-primary);
 }
 
+/* === MOBILE NAVIGATION === */
+.mobile-header {
+  display: none;
+  height: 48px;
+  background: var(--bg-titlebar);
+  border-bottom: 1px solid var(--border-panel);
+  align-items: center;
+  padding: 0 12px;
+  gap: 12px;
+}
+
+.mobile-menu-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.mobile-menu-btn:hover {
+  background: var(--bg-hover);
+}
+
+.mobile-menu-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mobile-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.mobile-search-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.mobile-search-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.mobile-search-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile sidebar overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+/* === RESPONSIVE BREAKPOINTS === */
+@media (max-width: 768px) {
+  /* Hide desktop-only elements */
+  .titlebar {
+    display: none;
+  }
+  
+  .activitybar {
+    display: none;
+  }
+  
+  .panel {
+    height: 120px;
+  }
+  
+  .panel-content {
+    font-size: 11px;
+  }
+  
+  /* Show mobile header */
+  .mobile-header {
+    display: flex;
+  }
+  
+  /* IDE layout changes */
+  .ide-window {
+    grid-template-rows: 48px 1fr 120px 22px;
+  }
+  
+  .ide-main {
+    display: block;
+    position: relative;
+  }
+  
+  /* Sidebar becomes drawer */
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    top: 48px;
+    bottom: 0;
+    width: 280px;
+    z-index: 100;
+    transition: left 0.25s ease;
+    border-right: 1px solid var(--border-panel);
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  /* Editor takes full width */
+  .editor-group {
+    width: 100%;
+  }
+  
+  .editor-content {
+    padding: 16px;
+  }
+  
+  /* Adjust expression list for mobile */
+  .expression-list-header {
+    display: none;
+  }
+  
+  .expression-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 12px;
+  }
+  
+  .expression-row-title {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  
+  .expression-row-type,
+  .expression-row-layer,
+  .expression-row-date {
+    display: inline-block;
+    margin-right: 12px;
+  }
+  
+  .expression-row-complexity {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .expression-row {
+    position: relative;
+  }
+  
+  /* Filter bar mobile */
+  .filter-bar {
+    padding: 12px;
+  }
+  
+  .filter-chips {
+    gap: 4px;
+  }
+  
+  .filter-chip {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  /* Home page mobile */
+  .home-title {
+    font-size: 20px;
+  }
+  
+  .home-stats {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .stat-value {
+    font-size: 20px;
+  }
+  
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .category-item {
+    padding: 10px;
+    font-size: 12px;
+  }
+  
+  .category-icon {
+    font-size: 16px;
+  }
+  
+  /* Expression detail mobile */
+  .expression-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .code-block pre {
+    font-size: 12px;
+    padding: 12px;
+  }
+  
+  .code-line {
+    padding-left: 32px;
+  }
+  
+  .code-line::before {
+    width: 24px;
+  }
+  
+  /* Command palette mobile */
+  .command-palette-box {
+    width: 95vw;
+    margin: 0 2.5vw;
+  }
+  
+  /* Status bar mobile */
+  .statusbar {
+    font-size: 10px;
+  }
+  
+  .statusbar-item {
+    padding: 0 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .home-stats {
+    flex-direction: column;
+  }
+  
+  .stat-item {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-panel);
+  }
+  
+  .stat-item:last-child {
+    border-bottom: none;
+  }
+  
+  .panel {
+    height: 100px;
+  }
+}
+
 /* === UTILITIES === */
 .hidden {
   display: none !important;

@@ -35,7 +35,7 @@ expressions.forEach(expr => {
 });
 
 // Version tracking
-const siteVersion = "0.1.8";
+const siteVersion = "0.2.0";
 const buildDate = new Date().toISOString().split('T')[0];
 const isDev = import.meta.env.DEV;
 const versionDisplay = isDev ? `${siteVersion}-dev` : siteVersion;
@@ -62,6 +62,20 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
 </head>
 <body>
   <div class="ide-window">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      </button>
+      <span class="mobile-title">AE Expressions</span>
+      <button class="mobile-search-btn" id="mobile-search-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.25 0a8.25 8.25 0 0 0-6.18 13.72L1 22.88l1.12 1.12 8.05-9.12A8.251 8.251 0 1 0 15.25.01V0zm0 15a6.75 6.75 0 1 1 0-13.5 6.75 6.75 0 0 1 0 13.5z"/></svg>
+      </button>
+    </header>
+    
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
     <!-- Title Bar -->
     <header class="titlebar">
       <div class="titlebar-traffic-lights">
@@ -277,8 +291,41 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        document.getElementById('search-input')?.focus();
+        document.getElementById('palette-input')?.focus();
+        document.getElementById('command-palette')?.classList.add('open');
       }
+    });
+    
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    mobileMenuBtn?.addEventListener('click', () => {
+      sidebar?.classList.toggle('open');
+      overlay?.classList.toggle('open');
+    });
+    
+    overlay?.addEventListener('click', () => {
+      sidebar?.classList.remove('open');
+      overlay?.classList.remove('open');
+    });
+    
+    // Close sidebar when clicking a link (mobile)
+    document.querySelectorAll('.sidebar a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          sidebar?.classList.remove('open');
+          overlay?.classList.remove('open');
+        }
+      });
+    });
+    
+    // Mobile search button
+    const mobileSearchBtn = document.getElementById('mobile-search-btn');
+    mobileSearchBtn?.addEventListener('click', () => {
+      document.getElementById('command-palette')?.classList.add('open');
+      document.getElementById('palette-input')?.focus();
     });
   </script>
 </body>
