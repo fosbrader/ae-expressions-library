@@ -5,7 +5,72 @@ interface Props {
 }
 
 const { code, filename = 'expression.jsx' } = Astro.props;
-const lines = code.trim().split('\n');
+const escapeHtml = (text: string) =>
+  text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const applyTokenColors = (text: string) =>
+  text
+    .replace(/(["'`].*?["'`])/g, '<span class="token string">$1</span>')
+    .replace(/\b(-?\d+(?:\.\d+)?)\b/g, '<span class="token number">$1</span>')
+    .replace(
+      /\b(const|let|var|return|if|else|for|while|function|new|this|true|false|null|undefined)\b/g,
+      '<span class="token keyword">$1</span>'
+    )
+    .replace(/\b([A-Za-z_]\w*)(?=\s*\()/g, '<span class="token function">$1</span>');
+
+const findCommentIndex = (line: string) => {
+  let inString: string | null = null;
+  let escapedChar = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+
+    if (escapedChar) {
+      escapedChar = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escapedChar = true;
+      continue;
+    }
+
+    if (!inString && char === '/' && line[i + 1] === '/') {
+      return i;
+    }
+
+    if (char === '"' || char === "'" || char === '`') {
+      inString = inString === char ? null : char;
+    }
+  }
+
+  return -1;
+};
+
+const highlightLine = (line: string) => {
+  const commentIndex = findCommentIndex(line);
+
+  if (commentIndex !== -1) {
+    const codePart = line.slice(0, commentIndex);
+    const commentPart = line.slice(commentIndex);
+
+    return `${applyTokenColors(escapeHtml(codePart))}<span class="token comment">${escapeHtml(
+      commentPart
+    )}</span>`;
+  }
+
+  return applyTokenColors(escapeHtml(line));
+};
+
+const highlightedLines = code
+  .trim()
+  .split('\n')
+  .map((line) => highlightLine(line));
 ---
 
 <div class="code-section">
@@ -15,7 +80,9 @@ const lines = code.trim().split('\n');
   </div>
   
   <div class="code-block">
-    <pre><code>{lines.map((line, i) => <span class="code-line">{line + '\n'}</span>)}</code></pre>
+    <pre><code>{highlightedLines.map((line) => (
+      <span class="code-line" set:html={line}></span>
+    ))}</code></pre>
   </div>
 </div>
 
