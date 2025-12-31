@@ -76,7 +76,12 @@ html, body {
   font-size: var(--font-size-ui);
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
+}
+
+@media (min-width: 769px) {
+  html, body {
+    overflow: hidden;
+  }
 }
 
 /* Minimal scrollbars like VS Code */
@@ -1360,26 +1365,38 @@ html, body {
   }
   
   .panel {
-    height: 120px;
+    display: none;
   }
   
-  .panel-content {
-    font-size: 11px;
+  .statusbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
   
   /* Show mobile header */
   .mobile-header {
     display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
   }
   
   /* IDE layout changes */
   .ide-window {
-    grid-template-rows: 48px 1fr 120px 22px;
+    display: block;
+    min-height: 100vh;
+    padding-top: 48px;
+    padding-bottom: 22px;
   }
   
   .ide-main {
     display: block;
     position: relative;
+    min-height: calc(100vh - 70px);
   }
   
   /* Sidebar becomes drawer */
@@ -1387,11 +1404,12 @@ html, body {
     position: fixed;
     left: -280px;
     top: 48px;
-    bottom: 0;
+    bottom: 22px;
     width: 280px;
     z-index: 100;
     transition: left 0.25s ease;
     border-right: 1px solid var(--border-panel);
+    overflow-y: auto;
   }
   
   .sidebar.open {
@@ -1401,10 +1419,16 @@ html, body {
   /* Editor takes full width */
   .editor-group {
     width: 100%;
+    min-height: 100%;
+  }
+  
+  .tabs-bar {
+    display: none;
   }
   
   .editor-content {
     padding: 16px;
+    overflow: visible;
   }
   
   /* Adjust expression list for mobile */
