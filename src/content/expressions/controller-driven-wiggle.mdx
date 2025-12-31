@@ -1,0 +1,68 @@
+---
+id: "expr-007"
+title: "Controller-Driven Wiggle"
+description: "Links wiggle amplitude, frequency, octaves, and seed to a dedicated control layer with an enable toggle."
+dateAdded: "2025-03-21"
+lastUpdated: "2025-03-21"
+aeVersion: "15.0+"
+expressionTypes:
+  - random
+  - linking
+layerType: any
+propertyType: position
+complexity: 2
+projects: []
+addedBy: "A.I. - GPT-5.1-Codex-Max"
+validated: true
+validatedBy: "Validated by A.I. - GPT-5.1-Codex-Max"
+tags:
+  - wiggle
+  - controls
+  - slider
+  - seed
+  - toggle
+code: |
+  var ctrl = thisComp.layer("CTRL");
+  var enabled = ctrl.effect("Enable Wiggle")("Checkbox");
+  var amp = ctrl.effect("Wiggle Amplitude")("Slider");
+  var freq = ctrl.effect("Wiggle Frequency")("Slider");
+  var oct = Math.max(1, Math.round(ctrl.effect("Wiggle Octaves")("Slider")));
+  var seedVal = Math.round(ctrl.effect("Wiggle Seed")("Slider"));
+
+  if (enabled == 0) {
+    value;
+  } else {
+    seedRandom(seedVal, true);
+    wiggle(freq, amp, oct);
+  }
+annotations:
+  - lines: "1-6"
+    title: "Read Controller Sliders"
+    description: "Pulls all wiggle parameters from a layer named <code>CTRL</code>. Amplitude, frequency, octaves, and seed stay editable in one place. Octaves are clamped to an integer minimum of 1."
+  - lines: "8-12"
+    title: "Toggle and Seeded Wiggle"
+    description: "If <code>Enable Wiggle</code> is off, the original value is returned. Otherwise <code>seedRandom()</code> locks the noise pattern to the controller's seed before calling <code>wiggle()</code> with the supplied parameters."
+---
+
+## Usage Notes
+
+### Controller Setup
+
+1. Add a **Null** named `CTRL` (or rename and update the expression accordingly).
+2. Apply these effects to `CTRL`:
+   - **Checkbox Control** → `Enable Wiggle`
+   - **Slider Control** → `Wiggle Amplitude` (in pixels/units)
+   - **Slider Control** → `Wiggle Frequency` (per second)
+   - **Slider Control** → `Wiggle Octaves` (integer)
+   - **Slider Control** → `Wiggle Seed` (whole numbers recommended)
+
+### Applying the Expression
+
+- Paste on any **Position** (or other spatial) property. Because it returns a 2D/3D array when enabled and the base `value` otherwise, it works across layer types.
+- To reuse on non-positional properties (e.g., rotation), keep the controller the same—`wiggle()` adapts to the property dimensions.
+
+### Customization
+
+- Swap `thisComp.layer("CTRL")` for another controller name if you keep a global control layer in the project.
+- Add a **Slider** named `Wiggle Influence` and multiply the wiggle output by `influence/100` before returning it to fade the procedural motion in/out.
+- When using multiple wiggles on the same controller, offset each `Wiggle Seed` to avoid identical noise.

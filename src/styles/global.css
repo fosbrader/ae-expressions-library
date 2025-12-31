@@ -853,6 +853,26 @@ html, body {
   color: var(--text-primary);
 }
 
+.validation-pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-panel);
+  background: var(--bg-tab-inactive);
+  font-weight: 600;
+}
+
+.validation-pill.validated {
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  background: color-mix(in srgb, var(--accent-green) 10%, transparent);
+}
+
+.validation-pill.unvalidated {
+  border-color: var(--accent-yellow);
+  color: var(--accent-yellow);
+  background: color-mix(in srgb, var(--accent-yellow) 10%, transparent);
+}
+
 /* Code block */
 .code-section {
   margin-bottom: 24px;

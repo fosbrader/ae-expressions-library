@@ -14,6 +14,9 @@ const expressions = defineCollection({
     propertyType: z.string(),
     complexity: z.number().min(1).max(4),
     projects: z.array(z.string()),
+    addedBy: z.string(),
+    validated: z.boolean(),
+    validatedBy: z.string(),
     tags: z.array(z.string()).optional(),
     code: z.string(),
     annotations: z.array(z.object({
