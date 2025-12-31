@@ -1,0 +1,68 @@
+---
+id: "expr-009"
+title: "Freeze Then Resume Time Remap"
+description: "Holds time-remapped footage for a controller-defined window, then resumes playback seamlessly."
+dateAdded: "2025-03-21"
+lastUpdated: "2025-03-21"
+aeVersion: "15.0+"
+expressionTypes:
+  - time-based
+  - utility
+layerType: any
+propertyType: other
+complexity: 2
+projects: []
+addedBy: "A.I. - GPT-5.1-Codex-Max"
+validated: true
+validatedBy: "Validated by A.I. - GPT-5.1-Codex-Max"
+tags:
+  - time-remap
+  - freeze
+  - hold
+  - resume
+  - controls
+code: |
+  var ctrl = thisComp.layer("CONTROL");
+  var freezeIn = ctrl.effect("Freeze Start (s)")("Slider");
+  var freezeOut = ctrl.effect("Freeze End (s)")("Slider");
+  var preroll = ctrl.effect("Preroll Offset (frames)")("Slider");
+
+  var t = time - framesToTime(preroll);
+  var holdStart = Math.min(freezeIn, freezeOut);
+  var holdEnd = Math.max(freezeIn, freezeOut);
+  var holdDuration = holdEnd - holdStart;
+
+  if (t < holdStart) {
+    valueAtTime(t);
+  } else if (t < holdEnd) {
+    valueAtTime(holdStart);
+  } else {
+    valueAtTime(t - holdDuration);
+  }
+annotations:
+  - lines: "1-4"
+    title: "Controller Inputs"
+    description: "Reads freeze window start/end (seconds) and an optional preroll offset (frames) from the `CONTROL` layer."
+  - lines: "6-8"
+    title: "Normalized Window"
+    description: "Ensures the hold window always runs from the lower value to the higher value, regardless of slider order, and derives the duration for resume math."
+  - lines: "10-16"
+    title: "Freeze Logic"
+    description: "Before the hold starts, use normal playback. During the window, lock to <code>holdStart</code>. Afterward, subtract the hold duration so playback resumes without jumping."
+---
+
+## Usage Notes
+
+### Controller Setup
+
+1. Add a `CONTROL` layer with three controls:
+   - **Slider Control** `Freeze Start (s)` – when to freeze.
+   - **Slider Control** `Freeze End (s)` – when to resume.
+   - **Slider Control** `Preroll Offset (frames)` – optional negative/positive offset.
+2. Enable **Time Remapping** on the footage layer and apply the expression to the **Time Remap** property.
+
+### Tips
+
+- Use matching start/end values to create an infinite hold (no resume) and animate `Freeze End` later when you want playback to continue.
+- Because `valueAtTime` is used for every branch, existing time-remap keyframes remain respected before the freeze window.
+- Set `Preroll Offset` to a negative value if you need the freeze to begin earlier relative to the timeline.

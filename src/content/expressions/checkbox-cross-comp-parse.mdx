@@ -10,9 +10,15 @@ layerType: "any"
 propertyType: "opacity"
 complexity: 3
 projects: []
+addedBy: "A.I. - GPT-5.1-Codex-Max"
+validated: true
+validatedBy: "Validated by A.I. - GPT-5.1-Codex-Max"
 tags: ["checkbox","parse","cross-comp","master-control","advanced"]
 code: |
-  OnOff = comp("_CONTROL").layer(thisComp.name.split("_")[0]+" "+"TEAM CONTROL").effect(thisLayer.name.split("_")[0]+"_"+thisLayer.name.split("_")[1])("Checkbox")
+  var compPrefix = thisComp.name.split("_")[0];
+  var effectName = compPrefix + "_" + thisLayer.name.split("_")[0] + "_" + thisLayer.name.split("_")[1];
+
+  OnOff = comp("_MASTER").layer("CONTROL").effect(effectName)("Checkbox");
   if (OnOff==1){
   100
   }
@@ -21,10 +27,10 @@ code: |
   }
   
 annotations:
-  - lines: "1"
+  - lines: "1-3"
     title: "Cross-Comp Checkbox Lookup"
-    description: "Navigates to <code>_CONTROL</code> comp, finds a layer based on the current comp's name prefix + <code>TEAM CONTROL</code>, then finds a checkbox effect based on the layer's name parts. For comp <code>Home_Endcard</code> and layer <code>Player_Card</code>, looks for layer <code>Home TEAM CONTROL</code> and effect <code>Player_Card</code>."
-  - lines: "2-6"
+    description: "Navigates to the shared <code>_MASTER</code> control comp, uses the current comp's prefix to build an effect name, and reads the matching checkbox from the <code>CONTROL</code> layer. For comp <code>Home_Endcard</code> and layer <code>Player_Card</code>, looks for effect <code>Home_Player_Card</code>."
+  - lines: "4-8"
     title: "Visibility Toggle"
     description: "Standard if/else returning 100 (visible) when checked, 0 (hidden) when unchecked."
 ---

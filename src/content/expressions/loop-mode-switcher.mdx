@@ -1,0 +1,69 @@
+---
+id: "expr-008"
+title: "Loop Mode Switcher"
+description: "Loops the last keyframes with a controller-driven mode (cycle, pingpong, offset, continue) and loop count."
+dateAdded: "2025-03-21"
+lastUpdated: "2025-03-21"
+aeVersion: "15.0+"
+expressionTypes:
+  - time-based
+  - animation
+layerType: any
+propertyType: other
+complexity: 2
+projects: []
+addedBy: "A.I. - GPT-5.1-Codex-Max"
+validated: true
+validatedBy: "Validated by A.I. - GPT-5.1-Codex-Max"
+tags:
+  - loop
+  - cycle
+  - pingpong
+  - offset
+  - controls
+code: |
+  if (numKeys < 2) {
+    value;
+  } else {
+    var ctrl = thisComp.layer("CONTROL");
+    var modeIndex = Math.max(1, Math.min(4, Math.round(ctrl.effect("Loop Mode")("Dropdown"))));
+    var cycles = Math.max(0, Math.round(ctrl.effect("Loop Cycles")("Slider")));
+
+    var modes = ["cycle", "pingpong", "offset", "continue"];
+    var mode = modes[modeIndex - 1];
+
+    loopOut(mode, cycles);
+  }
+annotations:
+  - lines: "1-3"
+    title: "Guard for Keyframes"
+    description: "If fewer than two keyframes exist, return the property's current value to avoid loop errors."
+  - lines: "5-8"
+    title: "Dropdown + Slider Controls"
+    description: "`Loop Mode` (Dropdown Menu Control) drives the loop type with four options. `Loop Cycles` (Slider) sets how many keyframes from the end should repeat."
+  - lines: "10-11"
+    title: "Mode Mapping"
+    description: "Maps dropdown indices 1–4 to After Effects loop types: cycle, pingpong, offset, continue. Index clamping prevents invalid selections."
+  - lines: "13"
+    title: "Loop Execution"
+    description: "`loopOut(mode, cycles)` reuses the built-in looping behavior, honoring the selected type and cycle count from the controller."
+---
+
+## Usage Notes
+
+### Controller Setup
+
+1. Create or reuse a `CONTROL` layer with:
+   - **Dropdown Menu Control** named `Loop Mode` with four options in order: Cycle, PingPong, Offset, Continue.
+   - **Slider Control** named `Loop Cycles` (set to 0 to loop all keyframes).
+2. Keep at least **two keyframes** on the animated property.
+
+### Recommended Properties
+
+- Works well on **Opacity**, **Rotation**, **Position**, or any property with at least two keyed values.
+- `Offset` repeats the delta between the last two keyframes; `Continue` extends the velocity past the last keyframe.
+
+### Customization
+
+- Add another slider called `Loop Delay (frames)` and wrap `time - framesToTime(delay)` around the expression if you need to offset when looping starts.
+- To mirror a motion exactly, set the dropdown to **PingPong** and keep the last two keyframes equidistant in time.

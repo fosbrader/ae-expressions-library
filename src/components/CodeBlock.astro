@@ -5,9 +5,17 @@ interface Props {
 }
 
 const { code, filename = 'expression.jsx' } = Astro.props;
-const lines = code.trim().split('\n');
 
-// Escape code for safe HTML attribute embedding
+// Escape HTML for display
+const escapeHtml = (text: string) =>
+  text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+// Escape code for safe HTML attribute embedding (for copy button)
 function escapeHtmlAttr(str: string): string {
   return str
     .replace(/&/g, '&amp;')
@@ -18,16 +26,80 @@ function escapeHtmlAttr(str: string): string {
 }
 
 const escapedCode = escapeHtmlAttr(code);
+
+const applyTokenColors = (text: string) =>
+  text
+    .replace(/(["'`].*?["'`])/g, '<span class="token string">$1</span>')
+    .replace(/\b(-?\d+(?:\.\d+)?)\b/g, '<span class="token number">$1</span>')
+    .replace(
+      /\b(const|let|var|return|if|else|for|while|function|new|this|true|false|null|undefined)\b/g,
+      '<span class="token keyword">$1</span>'
+    )
+    .replace(/\b([A-Za-z_]\w*)(?=\s*\()/g, '<span class="token function">$1</span>');
+
+const findCommentIndex = (line: string) => {
+  let inString: string | null = null;
+  let escapedChar = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+
+    if (escapedChar) {
+      escapedChar = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escapedChar = true;
+      continue;
+    }
+
+    if (!inString && char === '/' && line[i + 1] === '/') {
+      return i;
+    }
+
+    if (char === '"' || char === "'" || char === '`') {
+      inString = inString === char ? null : char;
+    }
+  }
+
+  return -1;
+};
+
+const highlightLine = (line: string) => {
+  const commentIndex = findCommentIndex(line);
+
+  if (commentIndex !== -1) {
+    const codePart = line.slice(0, commentIndex);
+    const commentPart = line.slice(commentIndex);
+
+    return `${applyTokenColors(escapeHtml(codePart))}<span class="token comment">${escapeHtml(
+      commentPart
+    )}</span>`;
+  }
+
+  return applyTokenColors(escapeHtml(line));
+};
+
+const highlightedLines = code
+  .trim()
+  .split('\n')
+  .map((line) => highlightLine(line));
 ---
 
 <div class="code-section">
   <div class="code-header">
     <span class="code-filename">{filename}</span>
-    <button class="code-copy-btn" data-code={escapedCode}>📋 Copy</button>
+    <div class="code-actions">
+      <button class="code-wrap-toggle" type="button">Wrap lines: Off</button>
+      <button class="code-copy-btn" data-code={escapedCode} type="button">📋 Copy</button>
+    </div>
   </div>
-  
-  <div class="code-block">
-    <pre><code>{lines.map((line, i) => <span class="code-line">{line + '\n'}</span>)}</code></pre>
+
+  <div class="code-block" data-wrap="false">
+    <pre><code>{highlightedLines.map((line) => (
+      <span class="code-line" set:html={line}></span>
+    ))}</code></pre>
   </div>
 </div>
 
@@ -41,38 +113,63 @@ const escapedCode = escapeHtmlAttr(code);
     textarea.innerHTML = str;
     return textarea.value;
   }
-  
-  const buttons = document.querySelectorAll('.code-copy-btn');
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      // Cancel any pending timer for this button
-      const existingTimer = pendingTimers.get(btn);
-      if (existingTimer) {
-        clearTimeout(existingTimer);
-      }
-      
-      const encodedCode = btn.getAttribute('data-code') || '';
-      const code = decodeHtmlAttr(encodedCode);
-      
-      try {
-        await navigator.clipboard.writeText(code);
-        btn.textContent = '✓ Copied';
-        btn.classList.add('copied');
-        const timer = window.setTimeout(() => {
-          btn.textContent = '📋 Copy';
-          btn.classList.remove('copied');
-          pendingTimers.delete(btn);
-        }, 2000);
-        pendingTimers.set(btn, timer);
-      } catch (err) {
-        btn.textContent = '❌ Failed';
-        btn.classList.remove('copied');
-        const timer = window.setTimeout(() => {
-          btn.textContent = '📋 Copy';
-          pendingTimers.delete(btn);
-        }, 2000);
-        pendingTimers.set(btn, timer);
-      }
-    });
+
+  const codeSections = document.querySelectorAll('.code-section');
+
+  codeSections.forEach((section) => {
+    const copyButton = section.querySelector('.code-copy-btn');
+    const wrapButton = section.querySelector('.code-wrap-toggle');
+    const codeBlock = section.querySelector('.code-block');
+
+    if (copyButton) {
+      copyButton.addEventListener('click', async () => {
+        // Cancel any pending timer for this button
+        const existingTimer = pendingTimers.get(copyButton);
+        if (existingTimer) {
+          clearTimeout(existingTimer);
+        }
+
+        const encodedCode = copyButton.getAttribute('data-code') || '';
+        const code = decodeHtmlAttr(encodedCode);
+
+        try {
+          await navigator.clipboard.writeText(code);
+          copyButton.textContent = '✓ Copied';
+          copyButton.classList.add('copied');
+          const timer = window.setTimeout(() => {
+            copyButton.textContent = '📋 Copy';
+            copyButton.classList.remove('copied');
+            pendingTimers.delete(copyButton);
+          }, 2000);
+          pendingTimers.set(copyButton, timer);
+        } catch (err) {
+          copyButton.textContent = '❌ Failed';
+          copyButton.classList.remove('copied');
+          const timer = window.setTimeout(() => {
+            copyButton.textContent = '📋 Copy';
+            pendingTimers.delete(copyButton);
+          }, 2000);
+          pendingTimers.set(copyButton, timer);
+        }
+      });
+    }
+
+    if (wrapButton && codeBlock) {
+      let isWrapped = false;
+
+      const updateWrapState = () => {
+        codeBlock.classList.toggle('wrap-lines', isWrapped);
+        codeBlock.setAttribute('data-wrap', String(isWrapped));
+        wrapButton.textContent = isWrapped ? 'Wrap lines: On' : 'Wrap lines: Off';
+        wrapButton.setAttribute('aria-pressed', String(isWrapped));
+      };
+
+      wrapButton.addEventListener('click', () => {
+        isWrapped = !isWrapped;
+        updateWrapState();
+      });
+
+      updateWrapState();
+    }
   });
 </script>

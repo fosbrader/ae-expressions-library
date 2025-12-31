@@ -197,7 +197,24 @@ const expressionSlug = expression?.slug || '';
               <label class="admin-form-label">Tags (comma-separated)</label>
               <input type="text" name="tags" class="admin-form-input" value={data.tags?.join(', ') || ''}>
             </div>
-            
+
+            <div class="admin-form-group">
+              <label class="admin-form-label">Added by</label>
+              <input type="text" name="addedBy" class="admin-form-input" value={data.addedBy}>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-form-label">Validation</label>
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px; align-items: center;">
+                <select name="validated" class="admin-form-input admin-form-select">
+                  <option value="false" selected={!data.validated}>Unvalidated</option>
+                  <option value="true" selected={data.validated}>Validated</option>
+                </select>
+                <input type="text" name="validatedBy" class="admin-form-input" value={data.validatedBy}>
+              </div>
+              <div class="admin-form-hint">Use "Validated by {name}" or "Unvalidated".</div>
+            </div>
+
             <div class="admin-form-group">
               <label class="admin-form-label">Date Added</label>
               <input type="text" name="dateAdded" class="admin-form-input" value={data.dateAdded} readonly style="opacity: 0.7;">
@@ -364,6 +381,9 @@ const expressionSlug = expression?.slug || '';
       aeVersion: formData.get('aeVersion') || '17.0+',
       projects: formData.getAll('projects[]'),
       tags: formData.get('tags')?.toString().split(',').map(t => t.trim()).filter(Boolean) || [],
+      addedBy: formData.get('addedBy') || '',
+      validated: formData.get('validated') === 'true',
+      validatedBy: formData.get('validatedBy') || '',
       dateAdded: formData.get('dateAdded'),
       annotations: []
     };

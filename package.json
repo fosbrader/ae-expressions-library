@@ -1,7 +1,7 @@
 {
   "name": "ae-expressions-library",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -10,7 +10,9 @@
     "postbuild": "node scripts/postbuild.js",
     "preview": "astro preview",
     "astro": "astro",
-    "admin": "ADMIN_MODE=true astro dev --port 4322"
+    "admin": "ADMIN_MODE=true astro dev --port 4322",
+    "test": "node --test",
+    "test:watch": "node --test --watch"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.2",

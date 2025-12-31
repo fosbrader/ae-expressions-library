@@ -51,6 +51,9 @@ propertyType: source-text # Pick from categories.json → propertyTypes
 complexity: 2             # 1-4 (Simple, Moderate, Advanced, Expert)
 projects:
   - project-id            # Must match id in projects.json
+addedBy: "Your Name or A.I. - GPT-5.1-Codex-Max"
+validated: true
+validatedBy: "Validated by A.I. - GPT-5.1-Codex-Max" # or "Unvalidated"
 tags:
   - relevant
   - keywords
@@ -108,6 +111,8 @@ npm run build
 ```
 
 If build succeeds, the changes are valid. Push to deploy.
+
+Mark validated expressions by setting `validated: true` and `validatedBy: "Validated by {name}"` (or `"Validated by A.I. - GPT-5.1-Codex-Max"`). Leave `validated` as `false` with `validatedBy: "Unvalidated"` if it still needs review.
 
 ### Common Tasks
 
@@ -173,6 +178,9 @@ Site updates automatically in ~1 minute.
 | `propertyType` | string | ✅ | Property from `categories.json` |
 | `complexity` | number | ✅ | 1-4 difficulty level |
 | `projects` | string[] | ✅ | Project IDs from `projects.json` |
+| `addedBy` | string | ✅ | Who added the expression (e.g., "Brad" or "A.I. - GPT-5.1-Codex-Max") |
+| `validated` | boolean | ✅ | Whether the expression has been tested/verified |
+| `validatedBy` | string | ✅ | "Validated by {name}" or "Unvalidated" |
 | `tags` | string[] | ❌ | Searchable keywords |
 | `code` | string | ✅ | The expression code |
 | `annotations` | array | ✅ | Code explanations |

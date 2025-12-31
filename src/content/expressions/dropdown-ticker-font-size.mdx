@@ -14,6 +14,9 @@ complexity: 3
 projects:
   - ussf-ticker
   - ussf-endcard
+addedBy: "A.I. - GPT-5.1-Codex-Max"
+validated: true
+validatedBy: "Validated by A.I. - GPT-5.1-Codex-Max"
 tags:
   - dropdown
   - font-size
@@ -25,7 +28,7 @@ code: |
   var sizes  = [212, 203, 195];
 
   try {
-    var idx = comp("Endcard_Master").layer("CONTROL").effect("Text")("Menu").value;
+    var idx = comp("_MASTER").layer("CONTROL").effect("Text")("Menu").value;
     idx = Math.max(1, Math.min(3, idx));
     
     var txt = comp("_MASTER").layer(layers[idx-1]).text.sourceText.value + "";
@@ -43,7 +46,7 @@ annotations:
     description: "Define the mapping between dropdown indices and layer names, plus the corresponding font sizes. The arrays are parallel—index 0 corresponds to dropdown value 1, etc."
   - lines: "4-6"
     title: "Read Dropdown Value"
-    description: "Access the dropdown control from <code>Endcard_Master</code> comp → <code>CONTROL</code> layer → <code>Text</code> effect. The <code>(\"Menu\").value</code> returns the 1-based selection index. Clamping ensures it stays within valid range."
+    description: "Access the dropdown control from <code>_MASTER</code> comp → <code>CONTROL</code> layer → <code>Text</code> effect. The <code>(\"Menu\").value</code> returns the 1-based selection index. Clamping ensures it stays within valid range."
   - lines: "8"
     title: "Extract Text String"
     description: "Get the source text from the corresponding layer in <code>_MASTER</code> comp. The <code>+ \"\"</code> is critical—it coerces the TextDocument to a string. Using <code>.text</code> directly fails silently on some layer types."
@@ -60,7 +63,7 @@ annotations:
 ### Setup Requirements
 
 1. **Master comp** (`_MASTER`) must contain text layers with exact names matching the `layers` array
-2. **Control comp** (`Endcard_Master`) must have:
+2. **Control comp** (`_MASTER`) must have:
    - A null/solid layer named `CONTROL`
    - An effect called `Text` (Dropdown Menu Control)
 3. The dropdown order must match the `layers` array order
