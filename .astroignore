@@ -1,3 +1,1 @@
-# Ignore admin pages in production build (they only work in dev/server mode)
-src/pages/admin/**
-src/pages/api/**
+# Intentionally left blank. Admin/API routes must remain available during dev and server modes.
