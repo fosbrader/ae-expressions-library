@@ -1315,6 +1315,8 @@ html, body {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
+  text-decoration: none;
+  display: block;
 }
 
 .mobile-search-btn {
