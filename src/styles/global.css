@@ -1636,12 +1636,14 @@ html, body {
   .home-title {
     font-size: 20px;
   }
-  
+
   .home-stats {
-    flex-wrap: wrap;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 12px;
   }
-  
+
   .stat-value {
     font-size: 20px;
   }
@@ -1699,16 +1701,15 @@ html, body {
   .category-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .home-stats {
-    flex-direction: column;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
-  
+
   .stat-item {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border-panel);
+    gap: 2px;
+    padding: 0;
+    border-bottom: none;
   }
   
   .stat-item:last-child {
