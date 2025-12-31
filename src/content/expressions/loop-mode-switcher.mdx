@@ -25,7 +25,7 @@ code: |
   if (numKeys < 2) {
     value;
   } else {
-    var ctrl = thisComp.layer("CTRL");
+    var ctrl = thisComp.layer("CONTROL");
     var modeIndex = Math.max(1, Math.min(4, Math.round(ctrl.effect("Loop Mode")("Dropdown"))));
     var cycles = Math.max(0, Math.round(ctrl.effect("Loop Cycles")("Slider")));
 
@@ -53,7 +53,7 @@ annotations:
 
 ### Controller Setup
 
-1. Create or reuse a `CTRL` layer with:
+1. Create or reuse a `CONTROL` layer with:
    - **Dropdown Menu Control** named `Loop Mode` with four options in order: Cycle, PingPong, Offset, Continue.
    - **Slider Control** named `Loop Cycles` (set to 0 to loop all keyframes).
 2. Keep at least **two keyframes** on the animated property.
