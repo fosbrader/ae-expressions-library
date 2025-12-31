@@ -22,7 +22,7 @@ tags:
   - seed
   - toggle
 code: |
-  var ctrl = thisComp.layer("CTRL");
+  var ctrl = thisComp.layer("CONTROL");
   var enabled = ctrl.effect("Enable Wiggle")("Checkbox");
   var amp = ctrl.effect("Wiggle Amplitude")("Slider");
   var freq = ctrl.effect("Wiggle Frequency")("Slider");
@@ -38,7 +38,7 @@ code: |
 annotations:
   - lines: "1-6"
     title: "Read Controller Sliders"
-    description: "Pulls all wiggle parameters from a layer named <code>CTRL</code>. Amplitude, frequency, octaves, and seed stay editable in one place. Octaves are clamped to an integer minimum of 1."
+    description: "Pulls all wiggle parameters from a layer named <code>CONTROL</code>. Amplitude, frequency, octaves, and seed stay editable in one place. Octaves are clamped to an integer minimum of 1."
   - lines: "8-12"
     title: "Toggle and Seeded Wiggle"
     description: "If <code>Enable Wiggle</code> is off, the original value is returned. Otherwise <code>seedRandom()</code> locks the noise pattern to the controller's seed before calling <code>wiggle()</code> with the supplied parameters."
@@ -48,8 +48,8 @@ annotations:
 
 ### Controller Setup
 
-1. Add a **Null** named `CTRL` (or rename and update the expression accordingly).
-2. Apply these effects to `CTRL`:
+1. Add a **Null** named `CONTROL` (or reuse a master `CONTROL` layer in another comp).
+2. Apply these effects to `CONTROL`:
    - **Checkbox Control** → `Enable Wiggle`
    - **Slider Control** → `Wiggle Amplitude` (in pixels/units)
    - **Slider Control** → `Wiggle Frequency` (per second)
@@ -63,6 +63,6 @@ annotations:
 
 ### Customization
 
-- Swap `thisComp.layer("CTRL")` for another controller name if you keep a global control layer in the project.
+- If your controls live in another comp, point to them with `comp("Master").layer("CONTROL")` while keeping the layer name `CONTROL`.
 - Add a **Slider** named `Wiggle Influence` and multiply the wiggle output by `influence/100` before returning it to fade the procedural motion in/out.
 - When using multiple wiggles on the same controller, offset each `Wiggle Seed` to avoid identical noise.

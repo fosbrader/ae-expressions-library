@@ -22,7 +22,7 @@ tags:
   - resume
   - controls
 code: |
-  var ctrl = thisComp.layer("CTRL");
+  var ctrl = thisComp.layer("CONTROL");
   var freezeIn = ctrl.effect("Freeze Start (s)")("Slider");
   var freezeOut = ctrl.effect("Freeze End (s)")("Slider");
   var preroll = ctrl.effect("Preroll Offset (frames)")("Slider");
@@ -42,7 +42,7 @@ code: |
 annotations:
   - lines: "1-4"
     title: "Controller Inputs"
-    description: "Reads freeze window start/end (seconds) and an optional preroll offset (frames) from the `CTRL` layer."
+    description: "Reads freeze window start/end (seconds) and an optional preroll offset (frames) from the `CONTROL` layer."
   - lines: "6-8"
     title: "Normalized Window"
     description: "Ensures the hold window always runs from the lower value to the higher value, regardless of slider order, and derives the duration for resume math."
@@ -55,7 +55,7 @@ annotations:
 
 ### Controller Setup
 
-1. Add a `CTRL` layer with three controls:
+1. Add a `CONTROL` layer with three controls:
    - **Slider Control** `Freeze Start (s)` – when to freeze.
    - **Slider Control** `Freeze End (s)` – when to resume.
    - **Slider Control** `Preroll Offset (frames)` – optional negative/positive offset.
