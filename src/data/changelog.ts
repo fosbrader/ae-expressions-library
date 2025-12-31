@@ -12,6 +12,24 @@ export interface VersionEntry {
 
 const changelog: VersionEntry[] = [
   {
+    version: '1.1.0',
+    date: '2025-03-14',
+    highlights: ['Streamlined the mobile stat bar so counters stay on a single row'],
+    changes: [
+      {
+        title: 'Improved',
+        items: [
+          'Reduced padding and enforced a single-row layout for the expressions, categories, and projects counters on small screens',
+          'Kept the desktop stat bar appearance unchanged while tightening the mobile presentation'
+        ]
+      },
+      {
+        title: 'Changed',
+        items: ['Bumped the package version to 1.1.0']
+      }
+    ]
+  },
+  {
     version: '0.3.0',
     date: '2025-02-20',
     highlights: [
