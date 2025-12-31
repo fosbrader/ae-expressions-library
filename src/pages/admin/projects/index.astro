@@ -1,0 +1,73 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import projects from '../../../data/projects.json';
+import { getCollection } from 'astro:content';
+
+const expressions = await getCollection('expressions');
+
+// Count expressions per project
+const projectCounts = projects.projects.map(proj => {
+  const count = expressions.filter(e => e.data.projects.includes(proj.id)).length;
+  return { ...proj, count };
+});
+---
+
+<AdminLayout title="Projects" activeTab="projects">
+  <div class="admin-card">
+    <div class="admin-card-header">
+      All Projects
+      <span style="float: right; color: var(--text-muted); font-size: 12px;">
+        Edit in: src/data/projects.json
+      </span>
+    </div>
+    <div class="admin-card-body" style="padding: 0;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Expressions</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projectCounts.map(proj => (
+            <tr>
+              <td><code style="font-size: 11px;">{proj.id}</code></td>
+              <td><strong>{proj.name}</strong></td>
+              <td style="color: var(--text-secondary);">{proj.description}</td>
+              <td>
+                <span class="admin-badge admin-badge-success">{proj.count}</span>
+              </td>
+              <td>
+                <a href={`/projects/${proj.id}/`} target="_blank" class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
+                  View
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="admin-card" style="margin-top: 16px;">
+    <div class="admin-card-header">Add New Project</div>
+    <div class="admin-card-body">
+      <p style="font-size: 13px; color: var(--text-muted); margin: 0 0 16px 0;">
+        To add a new project, edit <code>src/data/projects.json</code> and add a new entry:
+      </p>
+      
+      <pre style="background: var(--bg-input); padding: 12px; border-radius: 4px; font-size: 12px; overflow-x: auto;">{`{
+  "id": "new-project-id",
+  "name": "Project Name",
+  "description": "Brief description of the project"
+}`}</pre>
+      
+      <p style="font-size: 13px; color: var(--text-muted); margin: 16px 0 0 0;">
+        After adding, the project will appear in the expression editor's project selector.
+      </p>
+    </div>
+  </div>
+</AdminLayout>

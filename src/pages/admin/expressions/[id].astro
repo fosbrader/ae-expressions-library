@@ -1,0 +1,402 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getCollection } from 'astro:content';
+import categories from '../../../data/categories.json';
+import projects from '../../../data/projects.json';
+
+const { id } = Astro.params;
+const expressions = await getCollection('expressions');
+const expression = expressions.find(e => e.data.id === id);
+
+if (!expression) {
+  return Astro.redirect('/admin/expressions/');
+}
+
+const data = expression.data;
+---
+
+<AdminLayout title={`Edit: ${data.title}`} activeTab="expressions">
+  <Fragment slot="actions">
+    <button type="submit" form="expression-form" class="admin-btn admin-btn-primary">
+      💾 Save Changes
+    </button>
+    <button type="button" id="delete-btn" class="admin-btn admin-btn-danger">
+      🗑️ Delete
+    </button>
+  </Fragment>
+  
+  <form id="expression-form" class="expression-form">
+    <input type="hidden" name="id" value={data.id}>
+    <input type="hidden" name="originalSlug" value={expression.slug}>
+    
+    <div class="form-grid">
+      <div class="form-main">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            Basic Info
+            <span style="float: right; font-size: 11px; color: var(--text-muted);">ID: {data.id}</span>
+          </div>
+          <div class="admin-card-body">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Title *</label>
+              <input type="text" name="title" class="admin-form-input" required value={data.title}>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Slug</label>
+              <input type="text" name="slug" id="slug-input" class="admin-form-input" value={expression.slug}>
+              <div class="admin-form-hint" id="slug-status">Current: /{expression.slug}/</div>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Description *</label>
+              <textarea name="description" class="admin-form-input admin-form-textarea" required>{data.description}</textarea>
+            </div>
+          </div>
+        </div>
+        
+        <div class="admin-card">
+          <div class="admin-card-header">Expression Code *</div>
+          <div class="admin-card-body">
+            <textarea name="code" class="admin-form-input admin-form-textarea code-textarea" required>{data.code}</textarea>
+          </div>
+        </div>
+        
+        <div class="admin-card">
+          <div class="admin-card-header">
+            Annotations
+            <button type="button" id="add-annotation" class="admin-btn admin-btn-secondary" style="float: right; padding: 2px 8px; font-size: 11px;">
+              + Add
+            </button>
+          </div>
+          <div class="admin-card-body" id="annotations-container">
+            {data.annotations.map((ann, i) => (
+              <div class="annotation-item">
+                <div style="display: grid; grid-template-columns: 80px 1fr auto; gap: 12px; margin-bottom: 8px;">
+                  <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label class="admin-form-label">Lines</label>
+                    <input type="text" name="annotation_lines[]" class="admin-form-input" value={ann.lines}>
+                  </div>
+                  <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label class="admin-form-label">Title</label>
+                    <input type="text" name="annotation_titles[]" class="admin-form-input" value={ann.title}>
+                  </div>
+                  {i > 0 && (
+                    <button type="button" class="remove-annotation admin-btn admin-btn-danger" style="align-self: flex-end; padding: 8px;">✕</button>
+                  )}
+                </div>
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                  <label class="admin-form-label">Description</label>
+                  <textarea name="annotation_descriptions[]" class="admin-form-input" rows="2">{ann.description}</textarea>
+                </div>
+              </div>
+            ))}
+            {data.annotations.length === 0 && (
+              <div class="annotation-item">
+                <div style="display: grid; grid-template-columns: 80px 1fr; gap: 12px; margin-bottom: 8px;">
+                  <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label class="admin-form-label">Lines</label>
+                    <input type="text" name="annotation_lines[]" class="admin-form-input" placeholder="1-3">
+                  </div>
+                  <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label class="admin-form-label">Title</label>
+                    <input type="text" name="annotation_titles[]" class="admin-form-input" placeholder="Section title">
+                  </div>
+                </div>
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                  <label class="admin-form-label">Description</label>
+                  <textarea name="annotation_descriptions[]" class="admin-form-input" rows="2" placeholder="Explain what this code does..."></textarea>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-sidebar">
+        <div class="admin-card">
+          <div class="admin-card-header">Classification</div>
+          <div class="admin-card-body">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Expression Type *</label>
+              <select name="expressionType" class="admin-form-input admin-form-select" required>
+                {categories.expressionTypes.map(type => (
+                  <option value={type.id} selected={data.expressionTypes.includes(type.id)}>{type.icon} {type.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Layer Type *</label>
+              <select name="layerType" class="admin-form-input admin-form-select" required>
+                {categories.layerTypes.map(layer => (
+                  <option value={layer.id} selected={data.layerType === layer.id}>{layer.icon} {layer.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Property Type *</label>
+              <select name="propertyType" class="admin-form-input admin-form-select" required>
+                {categories.propertyTypes.map(prop => (
+                  <option value={prop.id} selected={data.propertyType === prop.id}>{prop.label}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Complexity *</label>
+              <select name="complexity" class="admin-form-input admin-form-select" required>
+                {categories.complexityLevels.map(level => (
+                  <option value={level.id} selected={data.complexity === level.id}>{level.icon} {level.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="admin-card">
+          <div class="admin-card-header">Metadata</div>
+          <div class="admin-card-body">
+            <div class="admin-form-group">
+              <label class="admin-form-label">AE Version Required</label>
+              <input type="text" name="aeVersion" class="admin-form-input" value={data.aeVersion}>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Projects</label>
+              <div class="checkbox-list">
+                {projects.projects.map(proj => (
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="projects[]" value={proj.id} checked={data.projects.includes(proj.id)}>
+                    <span>{proj.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Tags (comma-separated)</label>
+              <input type="text" name="tags" class="admin-form-input" value={data.tags?.join(', ') || ''}>
+            </div>
+            
+            <div class="admin-form-group">
+              <label class="admin-form-label">Date Added</label>
+              <input type="text" name="dateAdded" class="admin-form-input" value={data.dateAdded} readonly style="opacity: 0.7;">
+            </div>
+          </div>
+        </div>
+        
+        <div class="admin-card">
+          <div class="admin-card-header">Preview</div>
+          <div class="admin-card-body">
+            <a href={`/expressions/${expression.slug}/`} target="_blank" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center;">
+              🌐 View on Site
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</AdminLayout>
+
+<style>
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+  }
+  
+  .form-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .form-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .code-textarea {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    min-height: 200px;
+  }
+  
+  .annotation-item {
+    padding: 12px;
+    background: var(--bg-input);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  
+  .checkbox-item:hover {
+    color: var(--text-primary);
+  }
+</style>
+
+<script define:vars={{ expressionId: id }}>
+  // Slug validation
+  const slugInput = document.getElementById('slug-input');
+  const slugStatus = document.getElementById('slug-status');
+  const originalSlug = document.querySelector('input[name="originalSlug"]')?.value;
+  
+  slugInput?.addEventListener('input', async (e) => {
+    const slug = e.target.value;
+    if (slug && slug !== originalSlug) {
+      try {
+        const res = await fetch(`/api/validate-slug?slug=${slug}&excludeId=${expressionId}`);
+        const data = await res.json();
+        if (slugStatus) {
+          if (data.exists) {
+            slugStatus.textContent = '⚠️ This slug already exists';
+            slugStatus.style.color = 'var(--accent-yellow)';
+          } else {
+            slugStatus.textContent = '✓ Slug is available';
+            slugStatus.style.color = 'var(--accent-green)';
+          }
+        }
+      } catch (err) {
+        // API not available
+      }
+    } else if (slugStatus) {
+      slugStatus.textContent = `Current: /${slug}/`;
+      slugStatus.style.color = 'var(--text-muted)';
+    }
+  });
+  
+  // Add annotation
+  document.getElementById('add-annotation')?.addEventListener('click', () => {
+    const container = document.getElementById('annotations-container');
+    const item = document.createElement('div');
+    item.className = 'annotation-item';
+    item.innerHTML = `
+      <div style="display: grid; grid-template-columns: 80px 1fr auto; gap: 12px; margin-bottom: 8px;">
+        <div class="admin-form-group" style="margin-bottom: 0;">
+          <label class="admin-form-label">Lines</label>
+          <input type="text" name="annotation_lines[]" class="admin-form-input" placeholder="1-3">
+        </div>
+        <div class="admin-form-group" style="margin-bottom: 0;">
+          <label class="admin-form-label">Title</label>
+          <input type="text" name="annotation_titles[]" class="admin-form-input" placeholder="Section title">
+        </div>
+        <button type="button" class="remove-annotation admin-btn admin-btn-danger" style="align-self: flex-end; padding: 8px;">✕</button>
+      </div>
+      <div class="admin-form-group" style="margin-bottom: 0;">
+        <label class="admin-form-label">Description</label>
+        <textarea name="annotation_descriptions[]" class="admin-form-input" rows="2" placeholder="Explain what this code does..."></textarea>
+      </div>
+    `;
+    container?.appendChild(item);
+    
+    item.querySelector('.remove-annotation')?.addEventListener('click', () => {
+      item.remove();
+    });
+  });
+  
+  // Remove annotation buttons
+  document.querySelectorAll('.remove-annotation').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.annotation-item')?.remove();
+    });
+  });
+  
+  // Form submission
+  document.getElementById('expression-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    const data = {
+      id: formData.get('id'),
+      originalSlug: formData.get('originalSlug'),
+      title: formData.get('title'),
+      slug: formData.get('slug'),
+      description: formData.get('description'),
+      code: formData.get('code'),
+      expressionType: formData.get('expressionType'),
+      layerType: formData.get('layerType'),
+      propertyType: formData.get('propertyType'),
+      complexity: parseInt(formData.get('complexity')),
+      aeVersion: formData.get('aeVersion') || '17.0+',
+      projects: formData.getAll('projects[]'),
+      tags: formData.get('tags')?.toString().split(',').map(t => t.trim()).filter(Boolean) || [],
+      dateAdded: formData.get('dateAdded'),
+      annotations: []
+    };
+    
+    const lines = formData.getAll('annotation_lines[]');
+    const titles = formData.getAll('annotation_titles[]');
+    const descriptions = formData.getAll('annotation_descriptions[]');
+    
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i] && titles[i]) {
+        data.annotations.push({
+          lines: lines[i],
+          title: titles[i],
+          description: descriptions[i] || ''
+        });
+      }
+    }
+    
+    try {
+      const res = await fetch(`/api/expressions/${expressionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      
+      if (res.ok) {
+        alert('Expression saved successfully!');
+        if (data.slug !== data.originalSlug) {
+          // Slug changed, redirect may be needed
+          window.location.reload();
+        }
+      } else {
+        const error = await res.json();
+        alert('Error: ' + error.message);
+      }
+    } catch (err) {
+      alert('Failed to save expression');
+    }
+  });
+  
+  // Delete button
+  document.getElementById('delete-btn')?.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete this expression? This cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/expressions/${expressionId}`, {
+        method: 'DELETE'
+      });
+      
+      if (res.ok) {
+        window.location.href = '/admin/expressions/';
+      } else {
+        const error = await res.json();
+        alert('Error: ' + error.message);
+      }
+    } catch (err) {
+      alert('Failed to delete expression');
+    }
+  });
+</script>

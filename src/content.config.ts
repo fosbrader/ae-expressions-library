@@ -3,6 +3,7 @@ import { defineCollection, z } from 'astro:content';
 const expressions = defineCollection({
   type: 'content',
   schema: z.object({
+    id: z.string(), // Unique ID that never changes
     title: z.string(),
     description: z.string(),
     dateAdded: z.string(),
