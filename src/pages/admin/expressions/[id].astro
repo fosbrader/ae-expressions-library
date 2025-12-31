@@ -4,6 +4,13 @@ import { getCollection } from 'astro:content';
 import categories from '../../../data/categories.json';
 import projects from '../../../data/projects.json';
 
+export async function getStaticPaths() {
+  const expressions = await getCollection('expressions');
+  return expressions.map(expr => ({
+    params: { id: expr.data.id }
+  }));
+}
+
 const baseRaw = import.meta.env.BASE_URL;
 const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 
@@ -212,7 +219,7 @@ const expressionSlug = expression?.slug || '';
                 </select>
                 <input type="text" name="validatedBy" class="admin-form-input" value={data.validatedBy}>
               </div>
-              <div class="admin-form-hint">Use "Validated by {name}" or "Unvalidated".</div>
+              <div class="admin-form-hint">Use "Validated by &lt;name&gt;" or "Unvalidated".</div>
             </div>
 
             <div class="admin-form-group">
