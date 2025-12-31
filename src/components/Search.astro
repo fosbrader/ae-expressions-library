@@ -1,6 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
 
+interface Props {
+  base: string;
+}
+
+const { base } = Astro.props;
 const expressions = await getCollection('expressions');
 
 const searchData = expressions.map(expr => ({
@@ -11,7 +16,7 @@ const searchData = expressions.map(expr => ({
   types: expr.data.expressionTypes,
   layer: expr.data.layerType,
   tags: expr.data.tags || [],
-  url: `/expressions/${expr.id}`
+  url: `${base}expressions/${expr.id}/`
 }));
 ---
 
@@ -43,7 +48,6 @@ const searchData = expressions.map(expr => ({
     const palette = document.getElementById('command-palette');
     const input = document.getElementById('palette-input');
     const results = document.getElementById('palette-results');
-    const sidebarInput = document.getElementById('search-input');
     
     const fuse = new Fuse(searchData, {
       keys: [
@@ -96,8 +100,6 @@ const searchData = expressions.map(expr => ({
         </a>
       `).join('');
     }
-    
-    sidebarInput?.addEventListener('focus', openPalette);
     
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {

@@ -13,6 +13,7 @@ interface Props {
 }
 
 const { title, activeTab, showBreadcrumb = false, breadcrumbPath = '' } = Astro.props;
+const base = import.meta.env.BASE_URL;
 
 const expressions = await getCollection('expressions');
 const expressionCount = expressions.length;
@@ -75,10 +76,10 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
       <!-- Activity Bar -->
       <aside class="activitybar">
         <div class="activitybar-top">
-          <a href="/" class={`activitybar-icon ${activeTab === 'home' ? 'active' : ''}`} title="Explorer">
+          <a href={`${base}`} class={`activitybar-icon ${activeTab === 'home' ? 'active' : ''}`} title="Explorer">
             📁
           </a>
-          <a href="/all" class={`activitybar-icon ${activeTab === 'all' ? 'active' : ''}`} title="Search">
+          <a href={`${base}all/`} class={`activitybar-icon ${activeTab === 'all' ? 'active' : ''}`} title="Search">
             🔍
           </a>
         </div>
@@ -112,7 +113,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
                         {exprs.map(expr => (
                           <li>
                             <a 
-                              href={`/expressions/${expr.id}`}
+                              href={`${base}expressions/${expr.id}/`}
                               class={`tree-file ${activeTab === expr.id ? 'active' : ''}`}
                             >
                               <span class="file-icon jsx">◇</span>
@@ -136,7 +137,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
               <ul class="tree-children">
                 {projects.projects.map(proj => (
                   <li>
-                    <a href={`/projects/${proj.id}`} class="tree-file">
+                    <a href={`${base}projects/${proj.id}/`} class="tree-file">
                       <span class="file-icon json">◈</span>
                       <span class="file-name">{proj.name}</span>
                     </a>
@@ -175,7 +176,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
         <!-- Breadcrumb -->
         {showBreadcrumb && (
           <div class="breadcrumb-bar">
-            <a href="/">expressions</a>
+            <a href={`${base}`}>expressions</a>
             <span class="breadcrumb-sep">›</span>
             <span>{breadcrumbPath || title}</span>
           </div>
@@ -232,7 +233,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
     </footer>
   </div>
   
-  <Search />
+  <Search base={base} />
   
   <script>
     // Section toggle

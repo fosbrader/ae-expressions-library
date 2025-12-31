@@ -21,6 +21,7 @@ interface Props {
 const { expression } = Astro.props;
 const { data, id } = expression;
 const { Content } = await expression.render();
+const base = import.meta.env.BASE_URL;
 
 const typeInfos = data.expressionTypes.map(t => 
   categories.expressionTypes.find(c => c.id === t)
