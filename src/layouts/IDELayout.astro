@@ -1,0 +1,269 @@
+---
+import '../styles/global.css';
+import Search from '../components/Search.astro';
+import categories from '../data/categories.json';
+import projects from '../data/projects.json';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  title: string;
+  activeTab?: string;
+  showBreadcrumb?: boolean;
+  breadcrumbPath?: string;
+}
+
+const { title, activeTab, showBreadcrumb = false, breadcrumbPath = '' } = Astro.props;
+
+const expressions = await getCollection('expressions');
+const expressionCount = expressions.length;
+const lastUpdated = new Date().toLocaleDateString('en-US', { 
+  year: 'numeric', 
+  month: 'short', 
+  day: 'numeric' 
+});
+
+// Group expressions by type for sidebar
+const groupedExpressions: Record<string, typeof expressions> = {};
+expressions.forEach(expr => {
+  const type = expr.data.expressionTypes[0] || 'utility';
+  if (!groupedExpressions[type]) {
+    groupedExpressions[type] = [];
+  }
+  groupedExpressions[type].push(expr);
+});
+
+// Terminal messages
+const terminalMessages = [
+  "Ready to animate.",
+  "No keyframes harmed.",
+  "Expression engine: online.",
+  "Expressions loaded.",
+];
+const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessages.length)];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title} — AE Expressions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="ide-window">
+    <!-- Title Bar -->
+    <header class="titlebar">
+      <div class="titlebar-traffic-lights">
+        <span class="traffic-light close"></span>
+        <span class="traffic-light minimize"></span>
+        <span class="traffic-light maximize"></span>
+      </div>
+      <nav class="titlebar-menu">
+        <span class="titlebar-menu-item">File</span>
+        <span class="titlebar-menu-item">Edit</span>
+        <span class="titlebar-menu-item">View</span>
+        <span class="titlebar-menu-item">Go</span>
+        <span class="titlebar-menu-item">Help</span>
+      </nav>
+      <span class="titlebar-title">AE Expressions Library — {title}</span>
+    </header>
+    
+    <div class="ide-main">
+      <!-- Activity Bar -->
+      <aside class="activitybar">
+        <div class="activitybar-top">
+          <a href="/" class={`activitybar-icon ${activeTab === 'home' ? 'active' : ''}`} title="Explorer">
+            📁
+          </a>
+          <a href="/all" class={`activitybar-icon ${activeTab === 'all' ? 'active' : ''}`} title="Search">
+            🔍
+          </a>
+        </div>
+        <div class="activitybar-bottom">
+          <span class="activitybar-icon" title="Settings">⚙️</span>
+        </div>
+      </aside>
+      
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">Explorer</div>
+        <nav class="sidebar-content">
+          <ul class="file-tree">
+            <!-- Expressions section -->
+            <li class="tree-section open">
+              <div class="tree-section-header">
+                <span class="tree-chevron">▶</span>
+                <span>Expressions</span>
+              </div>
+              <ul class="tree-children">
+                {Object.entries(groupedExpressions).map(([typeId, exprs]) => {
+                  const typeInfo = categories.expressionTypes.find(t => t.id === typeId);
+                  return (
+                    <li class="tree-folder open">
+                      <div class="tree-folder-header">
+                        <span class="tree-folder-icon">▶</span>
+                        <span class="folder-icon">📂</span>
+                        <span>{typeInfo?.label || typeId}</span>
+                      </div>
+                      <ul class="tree-folder-children">
+                        {exprs.map(expr => (
+                          <li>
+                            <a 
+                              href={`/expressions/${expr.id}`}
+                              class={`tree-file ${activeTab === expr.id ? 'active' : ''}`}
+                            >
+                              <span class="file-icon jsx">◇</span>
+                              <span class="file-name">{expr.data.title}.jsx</span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+            
+            <!-- Projects section -->
+            <li class="tree-section">
+              <div class="tree-section-header">
+                <span class="tree-chevron">▶</span>
+                <span>Projects</span>
+              </div>
+              <ul class="tree-children">
+                {projects.projects.map(proj => (
+                  <li>
+                    <a href={`/projects/${proj.id}`} class="tree-file">
+                      <span class="file-icon json">◈</span>
+                      <span class="file-name">{proj.name}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+      
+      <!-- Editor Group -->
+      <main class="editor-group">
+        <!-- Tabs -->
+        <div class="tabs-bar">
+          <div class={`tab ${activeTab === 'home' ? 'active' : ''}`}>
+            <span class="tab-icon">📄</span>
+            <span>Welcome</span>
+          </div>
+          {activeTab && activeTab !== 'home' && activeTab !== 'all' && (
+            <div class="tab active">
+              <span class="tab-icon">◇</span>
+              <span>{title}.jsx</span>
+              <span class="tab-close">×</span>
+            </div>
+          )}
+          {activeTab === 'all' && (
+            <div class="tab active">
+              <span class="tab-icon">🔍</span>
+              <span>All Expressions</span>
+              <span class="tab-close">×</span>
+            </div>
+          )}
+        </div>
+        
+        <!-- Breadcrumb -->
+        {showBreadcrumb && (
+          <div class="breadcrumb-bar">
+            <a href="/">expressions</a>
+            <span class="breadcrumb-sep">›</span>
+            <span>{breadcrumbPath || title}</span>
+          </div>
+        )}
+        
+        <!-- Editor Content -->
+        <div class="editor-content">
+          <slot />
+        </div>
+      </main>
+    </div>
+    
+    <!-- Panel (Terminal) -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tabs">
+          <span class="panel-tab active">Terminal</span>
+          <span class="panel-tab">Output</span>
+          <span class="panel-tab">Problems</span>
+        </div>
+        <div class="panel-actions">
+          <span class="panel-action">−</span>
+          <span class="panel-action">□</span>
+          <span class="panel-action">×</span>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="terminal-line">
+          <span class="terminal-prompt">~/expressions</span>
+          <span class="terminal-cmd">$ status</span>
+        </div>
+        <div class="terminal-output terminal-success">✓ {randomMessage}</div>
+        <div class="terminal-output terminal-info">📊 {expressionCount} expressions loaded</div>
+        <div class="terminal-output terminal-info">📅 Last sync: {lastUpdated}</div>
+        <div class="terminal-output">💡 Press ⌘K to search</div>
+        <div class="terminal-line" style="margin-top: 8px;">
+          <span class="terminal-prompt">~/expressions</span>
+          <span class="terminal-cmd">$ <span id="cursor">_</span></span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Status Bar -->
+    <footer class="statusbar">
+      <div class="statusbar-left">
+        <span class="statusbar-item">🌿 main</span>
+        <span class="statusbar-item">⟳ synced</span>
+      </div>
+      <div class="statusbar-right">
+        <span class="statusbar-item">{expressionCount} expressions</span>
+        <span class="statusbar-item">JavaScript JSX</span>
+        <span class="statusbar-item">UTF-8</span>
+      </div>
+    </footer>
+  </div>
+  
+  <Search />
+  
+  <script>
+    // Section toggle
+    document.querySelectorAll('.tree-section-header').forEach(header => {
+      header.addEventListener('click', () => {
+        header.parentElement?.classList.toggle('open');
+      });
+    });
+    
+    // Folder toggle
+    document.querySelectorAll('.tree-folder-header').forEach(header => {
+      header.addEventListener('click', () => {
+        header.parentElement?.classList.toggle('open');
+      });
+    });
+    
+    // Blinking cursor
+    const cursor = document.getElementById('cursor');
+    if (cursor) {
+      setInterval(() => {
+        cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+      }, 530);
+    }
+    
+    // Command palette shortcut
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('search-input')?.focus();
+      }
+    });
+  </script>
+</body>
+</html>

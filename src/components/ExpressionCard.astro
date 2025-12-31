@@ -1,0 +1,42 @@
+---
+import categories from '../data/categories.json';
+
+interface Props {
+  id: string;
+  title: string;
+  description: string;
+  expressionTypes: string[];
+  layerType: string;
+  complexity: number;
+}
+
+const { id, title, description, expressionTypes, layerType, complexity } = Astro.props;
+
+const typeInfo = categories.expressionTypes.find(t => t.id === expressionTypes[0]);
+const layerInfo = categories.layerTypes.find(l => l.id === layerType);
+const complexityInfo = categories.complexityLevels.find(c => c.id === complexity);
+---
+
+<a href={`/expressions/${id}`} class="expression-card">
+  <div class="expression-card-header">
+    <h3 class="expression-card-title">{title}</h3>
+    <div class="expression-card-complexity" title={complexityInfo?.label}>
+      {[1, 2, 3, 4].map(level => (
+        <div 
+          class={`complexity-block ${level <= complexity ? `filled level-${complexity}` : ''}`}
+        />
+      ))}
+    </div>
+  </div>
+  
+  <p class="expression-card-description">{description}</p>
+  
+  <div class="expression-card-meta">
+    {typeInfo && (
+      <span class="meta-tag type">{typeInfo.icon} {typeInfo.label}</span>
+    )}
+    {layerInfo && (
+      <span class="meta-tag layer">{layerInfo.icon} {layerInfo.label}</span>
+    )}
+  </div>
+</a>

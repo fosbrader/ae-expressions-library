@@ -1,0 +1,44 @@
+{
+  "expressionTypes": [
+    { "id": "text-routing", "label": "Text Routing", "icon": "📝", "description": "Pulling text from other layers/comps" },
+    { "id": "text-style", "label": "Text Style", "icon": "🎨", "description": "Font size, color, tracking, etc." },
+    { "id": "animation", "label": "Animation", "icon": "🎬", "description": "Keyframe-based or procedural motion" },
+    { "id": "color", "label": "Color", "icon": "🌈", "description": "Color manipulation and theming" },
+    { "id": "utility", "label": "Utility", "icon": "🔧", "description": "Helper functions and reusable logic" },
+    { "id": "responsive", "label": "Responsive", "icon": "📐", "description": "Comp-size aware scaling/positioning" },
+    { "id": "time-based", "label": "Time-Based", "icon": "⏱️", "description": "Time remapping, loops, delays" },
+    { "id": "linking", "label": "Linking", "icon": "🔗", "description": "Connecting properties across layers/comps" },
+    { "id": "random", "label": "Random/Procedural", "icon": "🎲", "description": "Noise, wiggle, randomization" },
+    { "id": "path", "label": "Path/Shape", "icon": "✏️", "description": "Path manipulation and shape expressions" }
+  ],
+  "layerTypes": [
+    { "id": "text", "label": "Text Layer", "icon": "T" },
+    { "id": "shape", "label": "Shape Layer", "icon": "◆" },
+    { "id": "solid", "label": "Solid", "icon": "■" },
+    { "id": "null", "label": "Null Object", "icon": "◇" },
+    { "id": "adjustment", "label": "Adjustment Layer", "icon": "◐" },
+    { "id": "precomp", "label": "Pre-comp", "icon": "▤" },
+    { "id": "camera", "label": "Camera", "icon": "📷" },
+    { "id": "light", "label": "Light", "icon": "💡" },
+    { "id": "any", "label": "Any Layer", "icon": "✱" }
+  ],
+  "propertyTypes": [
+    { "id": "source-text", "label": "Source Text" },
+    { "id": "position", "label": "Position" },
+    { "id": "scale", "label": "Scale" },
+    { "id": "rotation", "label": "Rotation" },
+    { "id": "opacity", "label": "Opacity" },
+    { "id": "anchor-point", "label": "Anchor Point" },
+    { "id": "path", "label": "Path" },
+    { "id": "fill-color", "label": "Fill Color" },
+    { "id": "stroke-color", "label": "Stroke Color" },
+    { "id": "effect-param", "label": "Effect Parameter" },
+    { "id": "other", "label": "Other" }
+  ],
+  "complexityLevels": [
+    { "id": 1, "label": "Simple", "icon": "⚡", "color": "#4ade80", "blocks": 1, "description": "Basic expressions, single operations" },
+    { "id": 2, "label": "Moderate", "icon": "🔧", "color": "#facc15", "blocks": 2, "description": "Multiple operations, some logic" },
+    { "id": 3, "label": "Advanced", "icon": "🧠", "color": "#fb923c", "blocks": 3, "description": "Complex logic, multiple dependencies" },
+    { "id": 4, "label": "Expert", "icon": "💀", "color": "#f87171", "blocks": 4, "description": "Heavy computation, edge cases handled" }
+  ]
+}

@@ -1,0 +1,94 @@
+---
+import IDELayout from '../layouts/IDELayout.astro';
+import { getCollection } from 'astro:content';
+import categories from '../data/categories.json';
+
+const expressions = await getCollection('expressions');
+
+// Get recent expressions
+const recentExpressions = [...expressions]
+  .sort((a, b) => new Date(b.data.dateAdded).getTime() - new Date(a.data.dateAdded).getTime())
+  .slice(0, 8);
+---
+
+<IDELayout title="Welcome" activeTab="home">
+  <div class="home-content">
+    <section class="home-hero">
+      <h1 class="home-title">
+        <span class="home-logo">fx</span>
+        AE Expressions Library
+      </h1>
+      <p class="home-subtitle">
+        A curated collection of After Effects expressions, organized by type, project, and complexity.
+      </p>
+    </section>
+    
+    <section class="home-stats">
+      <div class="stat-item">
+        <span class="stat-value">{expressions.length}</span>
+        <span class="stat-label">Expressions</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{categories.expressionTypes.length}</span>
+        <span class="stat-label">Categories</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{new Set(expressions.flatMap(e => e.data.projects)).size}</span>
+        <span class="stat-label">Projects</span>
+      </div>
+    </section>
+    
+    <section class="home-section">
+      <div class="home-section-header">
+        <h2 class="home-section-title">Recent Expressions</h2>
+        <a href="/all" class="home-section-link">View all →</a>
+      </div>
+      
+      <div class="expression-list-header">
+        <span>Name</span>
+        <span>Type</span>
+        <span>Layer</span>
+        <span>Level</span>
+        <span>Added</span>
+      </div>
+      <div class="expression-list">
+        {recentExpressions.map(expr => {
+          const typeInfo = categories.expressionTypes.find(t => t.id === expr.data.expressionTypes[0]);
+          const layerInfo = categories.layerTypes.find(l => l.id === expr.data.layerType);
+          return (
+            <a href={`/expressions/${expr.id}`} class="expression-row">
+              <span class="expression-row-title">{expr.data.title}</span>
+              <span class="expression-row-type">{typeInfo?.icon} {typeInfo?.label}</span>
+              <span class="expression-row-layer">{layerInfo?.icon} {layerInfo?.label}</span>
+              <span class="expression-row-complexity">
+                {[1, 2, 3, 4].map(level => (
+                  <span class={`complexity-pip ${level <= expr.data.complexity ? `filled level-${expr.data.complexity}` : ''}`} />
+                ))}
+              </span>
+              <span class="expression-row-date">{expr.data.dateAdded}</span>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+    
+    <section class="home-section">
+      <div class="home-section-header">
+        <h2 class="home-section-title">Browse by Category</h2>
+      </div>
+      
+      <div class="category-grid">
+        {categories.expressionTypes.map(type => {
+          const count = expressions.filter(e => e.data.expressionTypes.includes(type.id)).length;
+          return (
+            <a href={`/category/${type.id}`} class="category-item">
+              <span class="category-icon">{type.icon}</span>
+              <span class="category-name">{type.label}</span>
+              <span class="category-count">{count}</span>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  </div>
+</IDELayout>

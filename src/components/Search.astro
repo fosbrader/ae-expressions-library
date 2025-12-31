@@ -1,0 +1,160 @@
+---
+import { getCollection } from 'astro:content';
+
+const expressions = await getCollection('expressions');
+
+const searchData = expressions.map(expr => ({
+  id: expr.id,
+  title: expr.data.title,
+  description: expr.data.description,
+  code: expr.data.code,
+  types: expr.data.expressionTypes,
+  layer: expr.data.layerType,
+  tags: expr.data.tags || [],
+  url: `/expressions/${expr.id}`
+}));
+---
+
+<div class="command-palette" id="command-palette">
+  <div class="command-palette-backdrop"></div>
+  <div class="command-palette-box">
+    <input 
+      type="text" 
+      class="command-palette-input" 
+      placeholder="Search expressions..."
+      id="palette-input"
+      autocomplete="off"
+    >
+    <div class="command-palette-results" id="palette-results">
+      <div class="command-palette-hint">
+        Type to search expressions, code, and tags...
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ searchData }}>
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js';
+  script.onload = initSearch;
+  document.head.appendChild(script);
+  
+  function initSearch() {
+    const palette = document.getElementById('command-palette');
+    const input = document.getElementById('palette-input');
+    const results = document.getElementById('palette-results');
+    const sidebarInput = document.getElementById('search-input');
+    
+    const fuse = new Fuse(searchData, {
+      keys: [
+        { name: 'title', weight: 2 },
+        { name: 'description', weight: 1.5 },
+        { name: 'code', weight: 1 },
+        { name: 'tags', weight: 1.5 },
+        { name: 'types', weight: 1 }
+      ],
+      threshold: 0.3,
+      includeMatches: true,
+      minMatchCharLength: 2
+    });
+    
+    function openPalette() {
+      palette.classList.add('open');
+      input.focus();
+      input.value = '';
+      renderHint();
+    }
+    
+    function closePalette() {
+      palette.classList.remove('open');
+      input.value = '';
+    }
+    
+    function renderHint() {
+      results.innerHTML = `
+        <div class="command-palette-hint">
+          Type to search expressions, code, and tags...
+        </div>
+      `;
+    }
+    
+    function renderResults(items) {
+      if (items.length === 0) {
+        results.innerHTML = `
+          <div class="command-palette-hint">
+            No expressions found
+          </div>
+        `;
+        return;
+      }
+      
+      results.innerHTML = items.slice(0, 8).map((result, i) => `
+        <a href="${result.item.url}" class="command-palette-item ${i === 0 ? 'selected' : ''}">
+          <span class="command-palette-item-icon">◇</span>
+          <span class="command-palette-item-title">${result.item.title}</span>
+          <span class="command-palette-item-path">${result.item.types[0]}</span>
+        </a>
+      `).join('');
+    }
+    
+    sidebarInput?.addEventListener('focus', openPalette);
+    
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (palette.classList.contains('open')) {
+          closePalette();
+        } else {
+          openPalette();
+        }
+      }
+      
+      if (e.key === 'Escape' && palette.classList.contains('open')) {
+        closePalette();
+      }
+    });
+    
+    palette.querySelector('.command-palette-backdrop')?.addEventListener('click', closePalette);
+    
+    input?.addEventListener('input', (e) => {
+      const query = e.target.value.trim();
+      if (query.length < 2) {
+        renderHint();
+        return;
+      }
+      
+      const searchResults = fuse.search(query);
+      renderResults(searchResults);
+    });
+    
+    let selectedIndex = 0;
+    input?.addEventListener('keydown', (e) => {
+      const items = results.querySelectorAll('.command-palette-item');
+      
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+        updateSelection(items);
+      }
+      
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, 0);
+        updateSelection(items);
+      }
+      
+      if (e.key === 'Enter') {
+        const selected = items[selectedIndex];
+        if (selected) {
+          window.location.href = selected.getAttribute('href');
+        }
+      }
+    });
+    
+    function updateSelection(items) {
+      items.forEach((item, i) => {
+        item.classList.toggle('selected', i === selectedIndex);
+      });
+    }
+  }
+</script>

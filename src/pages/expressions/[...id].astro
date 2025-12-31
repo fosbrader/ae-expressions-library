@@ -1,0 +1,117 @@
+---
+import IDELayout from '../../layouts/IDELayout.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import Annotations from '../../components/Annotations.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import categories from '../../data/categories.json';
+import projects from '../../data/projects.json';
+
+export async function getStaticPaths() {
+  const expressions = await getCollection('expressions');
+  return expressions.map(expr => ({
+    params: { id: expr.id },
+    props: { expression: expr }
+  }));
+}
+
+interface Props {
+  expression: CollectionEntry<'expressions'>;
+}
+
+const { expression } = Astro.props;
+const { data, id } = expression;
+const { Content } = await expression.render();
+
+const typeInfos = data.expressionTypes.map(t => 
+  categories.expressionTypes.find(c => c.id === t)
+).filter(Boolean);
+
+const layerInfo = categories.layerTypes.find(l => l.id === data.layerType);
+const propertyInfo = categories.propertyTypes.find(p => p.id === data.propertyType);
+const complexityInfo = categories.complexityLevels.find(c => c.id === data.complexity);
+
+const projectInfos = data.projects.map(pid => 
+  projects.projects.find(p => p.id === pid)
+).filter(Boolean);
+---
+
+<IDELayout 
+  title={data.title} 
+  activeTab={id} 
+  showBreadcrumb={true}
+  breadcrumbPath={`${typeInfos[0]?.label || 'expressions'} / ${data.title}.jsx`}
+>
+  <article class="expression-detail">
+    <header class="expression-header">
+      <h1 class="expression-title">{data.title}</h1>
+      <p class="expression-description">{data.description}</p>
+      
+      <div class="expression-meta">
+        <div class="meta-item">
+          <span class="meta-label">Type:</span>
+          <span class="meta-value">{typeInfos.map(t => `${t?.icon} ${t?.label}`).join(', ')}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Layer:</span>
+          <span class="meta-value">{layerInfo?.icon} {layerInfo?.label}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Property:</span>
+          <span class="meta-value">{propertyInfo?.label}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Complexity:</span>
+          <span class="meta-value">
+            {complexityInfo?.icon} {complexityInfo?.label}
+            <span style="display: inline-flex; gap: 2px; margin-left: 6px;">
+              {[1, 2, 3, 4].map(level => (
+                <span 
+                  class={`complexity-pip ${level <= data.complexity ? 'filled' : ''}`}
+                  style={level <= data.complexity ? `background: ${complexityInfo?.color}` : ''}
+                />
+              ))}
+            </span>
+          </span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Added:</span>
+          <span class="meta-value">{data.dateAdded}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">AE Version:</span>
+          <span class="meta-value">{data.aeVersion}</span>
+        </div>
+      </div>
+    </header>
+    
+    <CodeBlock code={data.code} filename={`${data.title.toLowerCase().replace(/\s+/g, '-')}.jsx`} />
+    
+    <Annotations annotations={data.annotations} />
+    
+    {projectInfos.length > 0 && (
+      <section class="projects-section">
+        <h3 class="section-title">Used in Projects</h3>
+        <div class="project-list">
+          {projectInfos.map(proj => (
+            <div class="project-badge">
+              <span class="project-name">{proj?.name}</span>
+              <span class="project-year">{proj?.year}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+    
+    {data.tags && data.tags.length > 0 && (
+      <div class="tags-section">
+        {data.tags.map(tag => (
+          <span class="tag">#{tag}</span>
+        ))}
+      </div>
+    )}
+    
+    <section class="notes-section">
+      <Content />
+    </section>
+  </article>
+</IDELayout>

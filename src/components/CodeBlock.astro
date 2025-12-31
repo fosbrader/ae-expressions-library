@@ -1,0 +1,40 @@
+---
+interface Props {
+  code: string;
+  filename?: string;
+}
+
+const { code, filename = 'expression.jsx' } = Astro.props;
+const lines = code.trim().split('\n');
+---
+
+<div class="code-section">
+  <div class="code-header">
+    <span class="code-filename">{filename}</span>
+    <button class="code-copy-btn" data-code={code}>📋 Copy</button>
+  </div>
+  
+  <div class="code-block">
+    <pre><code>{lines.map((line, i) => <span class="code-line">{line + '\n'}</span>)}</code></pre>
+  </div>
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('.code-copy-btn');
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const code = btn.getAttribute('data-code') || '';
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = '📋 Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      } catch (err) {
+        btn.textContent = '❌ Failed';
+      }
+    });
+  });
+</script>

@@ -1,0 +1,18 @@
+{
+  "projects": [
+    {
+      "id": "ussf-endcard",
+      "name": "USSF Endcard",
+      "client": "US Soccer Federation",
+      "year": 2024,
+      "description": "Endcard template system for US Soccer social content"
+    },
+    {
+      "id": "ussf-ticker",
+      "name": "USSF Ticker System",
+      "client": "US Soccer Federation", 
+      "year": 2024,
+      "description": "Dynamic ticker text routing with dropdown controls"
+    }
+  ]
+}

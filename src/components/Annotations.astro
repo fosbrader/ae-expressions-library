@@ -1,0 +1,38 @@
+---
+interface Annotation {
+  lines: string;
+  title: string;
+  description: string;
+}
+
+interface Props {
+  annotations: Annotation[];
+}
+
+const { annotations } = Astro.props;
+---
+
+<div class="annotations-section">
+  <h3 class="section-title">Code Breakdown</h3>
+  
+  {annotations.map((annotation, index) => (
+    <div class="annotation-item" data-index={index}>
+      <div class="annotation-header">
+        <span class="annotation-chevron">▶</span>
+        <span class="annotation-lines">L{annotation.lines}</span>
+        <span class="annotation-title">{annotation.title}</span>
+      </div>
+      <div class="annotation-content">
+        <Fragment set:html={annotation.description} />
+      </div>
+    </div>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll('.annotation-header').forEach(header => {
+    header.addEventListener('click', () => {
+      header.parentElement?.classList.toggle('open');
+    });
+  });
+</script>

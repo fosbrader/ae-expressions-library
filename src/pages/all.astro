@@ -1,0 +1,161 @@
+---
+import IDELayout from '../layouts/IDELayout.astro';
+import { getCollection } from 'astro:content';
+import categories from '../data/categories.json';
+
+const expressions = await getCollection('expressions');
+
+const sortedExpressions = [...expressions].sort(
+  (a, b) => new Date(b.data.dateAdded).getTime() - new Date(a.data.dateAdded).getTime()
+);
+---
+
+<IDELayout title="All Expressions" activeTab="all">
+  <div class="all-content">
+    <!-- Filter Bar -->
+    <div class="filter-bar" id="filter-bar">
+      <div class="filter-group">
+        <span class="filter-label">Type</span>
+        <div class="filter-chips">
+          <button class="filter-chip active" data-filter="type" data-value="all">All</button>
+          {categories.expressionTypes.map(type => (
+            <button class="filter-chip" data-filter="type" data-value={type.id}>
+              {type.icon} {type.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <span class="filter-label">Layer</span>
+        <div class="filter-chips">
+          <button class="filter-chip active" data-filter="layer" data-value="all">All</button>
+          {categories.layerTypes.map(layer => (
+            <button class="filter-chip" data-filter="layer" data-value={layer.id}>
+              {layer.icon} {layer.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <span class="filter-label">Complexity</span>
+        <div class="filter-chips">
+          <button class="filter-chip active" data-filter="complexity" data-value="all">All</button>
+          {categories.complexityLevels.map(level => (
+            <button class="filter-chip" data-filter="complexity" data-value={String(level.id)}>
+              {level.icon} {level.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Expression List -->
+    <div class="expression-list-header">
+      <span>Name</span>
+      <span>Type</span>
+      <span>Layer</span>
+      <span>Level</span>
+      <span>Added</span>
+    </div>
+    <div class="expression-list" id="expression-list">
+      {sortedExpressions.map(expr => {
+        const typeInfo = categories.expressionTypes.find(t => t.id === expr.data.expressionTypes[0]);
+        const layerInfo = categories.layerTypes.find(l => l.id === expr.data.layerType);
+        return (
+          <a 
+            href={`/expressions/${expr.id}`} 
+            class="expression-row"
+            data-types={expr.data.expressionTypes.join(',')}
+            data-layer={expr.data.layerType}
+            data-complexity={expr.data.complexity}
+          >
+            <span class="expression-row-title">{expr.data.title}</span>
+            <span class="expression-row-type">{typeInfo?.icon} {typeInfo?.label}</span>
+            <span class="expression-row-layer">{layerInfo?.icon} {layerInfo?.label}</span>
+            <span class="expression-row-complexity">
+              {[1, 2, 3, 4].map(level => (
+                <span class={`complexity-pip ${level <= expr.data.complexity ? `filled level-${expr.data.complexity}` : ''}`} />
+              ))}
+            </span>
+            <span class="expression-row-date">{expr.data.dateAdded}</span>
+          </a>
+        );
+      })}
+    </div>
+    
+    <div class="no-results hidden" id="no-results">
+      <p>No expressions match your filters.</p>
+    </div>
+  </div>
+</IDELayout>
+
+<script>
+  const filterBar = document.getElementById('filter-bar');
+  const list = document.getElementById('expression-list');
+  const noResults = document.getElementById('no-results');
+  
+  const activeFilters: Record<string, string> = {
+    type: 'all',
+    layer: 'all',
+    complexity: 'all'
+  };
+  
+  function applyFilters() {
+    const rows = list?.querySelectorAll('.expression-row');
+    let visibleCount = 0;
+    
+    rows?.forEach(row => {
+      const el = row as HTMLElement;
+      const types = el.dataset.types?.split(',') || [];
+      const layer = el.dataset.layer;
+      const complexity = el.dataset.complexity;
+      
+      const matchesType = activeFilters.type === 'all' || types.includes(activeFilters.type);
+      const matchesLayer = activeFilters.layer === 'all' || layer === activeFilters.layer;
+      const matchesComplexity = activeFilters.complexity === 'all' || complexity === activeFilters.complexity;
+      
+      if (matchesType && matchesLayer && matchesComplexity) {
+        el.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        el.classList.add('hidden');
+      }
+    });
+    
+    if (noResults) {
+      noResults.classList.toggle('hidden', visibleCount > 0);
+    }
+  }
+  
+  filterBar?.addEventListener('click', (e) => {
+    const chip = (e.target as HTMLElement).closest('.filter-chip') as HTMLElement;
+    if (!chip) return;
+    
+    const filterType = chip.dataset.filter;
+    const value = chip.dataset.value;
+    
+    if (filterType && value) {
+      activeFilters[filterType] = value;
+      
+      filterBar.querySelectorAll(`.filter-chip[data-filter="${filterType}"]`).forEach(c => {
+        c.classList.toggle('active', c === chip);
+      });
+      
+      applyFilters();
+    }
+  });
+</script>
+
+<style>
+  .all-content {
+    max-width: 100%;
+  }
+  
+  .no-results {
+    padding: 32px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+</style>
