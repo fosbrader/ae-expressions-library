@@ -3,6 +3,7 @@ import IDELayout from '../../layouts/IDELayout.astro';
 import { getCollection } from 'astro:content';
 import versionData from '../../data/version.json';
 import projects from '../../data/projects.json';
+import categories from '../../data/categories.json';
 
 const baseRaw = import.meta.env.BASE_URL;
 const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
@@ -14,112 +15,157 @@ const recentExpressions = [...expressions]
 ---
 
 <IDELayout title="Admin Dashboard" isAdmin={true}>
-  <div class="dashboard-grid">
-    <div class="dashboard-stats">
-      <div class="stat-card">
-        <div class="stat-value">{expressions.length}</div>
-        <div class="stat-label">Expressions</div>
+  <div class="home-content admin-home">
+    <section class="home-hero admin-hero">
+      <h1 class="home-title">
+        <span class="home-logo">fx</span>
+        AE Expressions Library
+        <span class="admin-badge" style="margin-left: 10px;">Admin</span>
+      </h1>
+      <p class="home-subtitle">
+        Manage the same interface your users see — plus authoring controls for adding, editing, and validating expressions.
+      </p>
+
+      <div class="admin-hero-actions">
+        <a href={`${base}admin/expressions/new/`} class="admin-btn admin-btn-primary" style="justify-content: center;">
+          + New Expression
+        </a>
+        <a href={`${base}`} target="_blank" class="admin-btn admin-btn-secondary" style="justify-content: center;">
+          🌐 View Live Site
+        </a>
       </div>
-      <div class="stat-card">
-        <div class="stat-value">{projects.projects.length}</div>
-        <div class="stat-label">Projects</div>
+    </section>
+
+    <section class="home-stats admin-stats">
+      <div class="stat-item">
+        <span class="stat-value">{expressions.length}</span>
+        <span class="stat-label">Expressions</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-value">v{versionData.public}</div>
-        <div class="stat-label">Public Version</div>
+      <div class="stat-item">
+        <span class="stat-value">{projects.projects.length}</span>
+        <span class="stat-label">Projects</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-value">{versionData.deployCount}</div>
-        <div class="stat-label">Deploys</div>
+      <div class="stat-item">
+        <span class="stat-value">v{versionData.public}</span>
+        <span class="stat-label">Public Version</span>
       </div>
-    </div>
-    
-    <div class="dashboard-row">
-      <div class="admin-card" style="flex: 1;">
-        <div class="admin-card-header">Recent Expressions</div>
-        <div class="admin-card-body" style="padding: 0;">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Type</th>
-                <th>Added</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentExpressions.map(expr => (
-                <tr>
-                  <td>{expr.data.title}</td>
-                  <td><span class="admin-badge">{expr.data.expressionTypes[0]}</span></td>
-                  <td>{expr.data.dateAdded}</td>
-                  <td>
-                    <a href={`${base}admin/expressions/${expr.data.id}/`} class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
-                      Edit
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div class="stat-item">
+        <span class="stat-value">{versionData.deployCount}</span>
+        <span class="stat-label">Deploys</span>
       </div>
-      
-      <div class="admin-card" style="width: 300px;">
-        <div class="admin-card-header">Quick Actions</div>
-        <div class="admin-card-body">
-          <a href={`${base}admin/expressions/new/`} class="admin-btn admin-btn-primary" style="width: 100%; justify-content: center; margin-bottom: 8px;">
-            + New Expression
-          </a>
-          <a href={`${base}`} target="_blank" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center;">
-            🌐 View Live Site
-          </a>
-          <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px; text-align: center;">
-            Changes auto-push to GitHub on save
-          </p>
-        </div>
+    </section>
+
+    <section class="home-section admin-section">
+      <div class="home-section-header">
+        <h2 class="home-section-title">Recent Expressions</h2>
+        <a href={`${base}admin/expressions/`} class="home-section-link">Manage all →</a>
       </div>
-    </div>
+
+      <div class="expression-list-header admin-list-header">
+        <span>Name</span>
+        <span>Type</span>
+        <span>Layer</span>
+        <span>Level</span>
+        <span>Added</span>
+        <span class="actions-col">Actions</span>
+      </div>
+
+      <div class="expression-list admin-expression-list">
+        {recentExpressions.map(expr => {
+          const typeInfo = categories.expressionTypes.find(t => t.id === expr.data.expressionTypes[0]);
+          const layerInfo = categories.layerTypes.find(l => l.id === expr.data.layerType);
+          return (
+            <div class="expression-row admin-expression-row">
+              <span class="expression-row-title">{expr.data.title}</span>
+              <span class="expression-row-type">{typeInfo?.icon} {typeInfo?.label}</span>
+              <span class="expression-row-layer">{layerInfo?.icon} {layerInfo?.label}</span>
+              <span class="expression-row-complexity">
+                {[1, 2, 3, 4].map(level => (
+                  <span class={`complexity-pip ${level <= expr.data.complexity ? `filled level-${expr.data.complexity}` : ''}`} />
+                ))}
+              </span>
+              <span class="expression-row-date">{expr.data.dateAdded}</span>
+              <span class="admin-expression-actions">
+                <a href={`${base}expressions/${expr.slug}/`} target="_blank" class="admin-btn admin-btn-secondary" style="padding: 6px 10px; font-size: 12px;">
+                  View
+                </a>
+                <a href={`${base}admin/expressions/${expr.data.id}/`} class="admin-btn admin-btn-primary" style="padding: 6px 10px; font-size: 12px;">
+                  Edit
+                </a>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   </div>
 </IDELayout>
 
 <style>
-  .dashboard-grid {
+  .admin-home {
+    padding-bottom: 32px;
+  }
+
+  .admin-hero {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 12px;
   }
-  
-  .dashboard-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-  
-  .stat-card {
-    background: var(--bg-panel);
-    border: 1px solid var(--border-panel);
-    border-radius: 4px;
-    padding: 20px;
-    text-align: center;
-  }
-  
-  .stat-value {
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--accent-lightblue);
-    margin-bottom: 4px;
-  }
-  
-  .stat-label {
-    font-size: 12px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .dashboard-row {
+
+  .admin-hero-actions {
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .admin-stats {
+    margin-top: 12px;
+  }
+
+  .admin-section {
+    margin-top: 8px;
+  }
+
+  .admin-list-header,
+  .admin-expression-row {
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+  }
+
+  .admin-expression-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .actions-col {
+    text-align: right;
+    padding-right: 8px;
+  }
+
+  @media (max-width: 960px) {
+    .admin-hero {
+      flex-direction: column;
+    }
+
+    .admin-list-header,
+    .admin-expression-row {
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      grid-template-areas:
+        "title title title title"
+        "type layer level actions"
+        "date date date actions";
+    }
+
+    .admin-expression-row { row-gap: 8px; }
+
+    .admin-expression-row > :nth-child(1) { grid-area: title; }
+    .admin-expression-row > :nth-child(2) { grid-area: type; }
+    .admin-expression-row > :nth-child(3) { grid-area: layer; }
+    .admin-expression-row > :nth-child(4) { grid-area: level; }
+    .admin-expression-row > :nth-child(5) { grid-area: date; }
+    .admin-expression-row > :nth-child(6) { grid-area: actions; }
+
+    .actions-col { text-align: left; }
   }
 </style>

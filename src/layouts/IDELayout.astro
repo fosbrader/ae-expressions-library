@@ -63,7 +63,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class={isAdmin ? 'is-admin' : ''}>
   <div class="ide-window">
     <!-- Mobile Header -->
     <header class="mobile-header">

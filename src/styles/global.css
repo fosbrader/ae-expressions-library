@@ -39,6 +39,8 @@
   --accent-orange: #ce9178;
   --accent-purple: #c586c0;
   --accent-red: #f14c4c;
+  --accent-tint-15: color-mix(in srgb, var(--accent-lightblue) 15%, transparent);
+  --accent-tint-10: color-mix(in srgb, var(--accent-lightblue) 10%, transparent);
   
   /* Complexity colors */
   --complexity-1: #4ec9b0;
@@ -60,6 +62,18 @@
   --font-size-ui: 13px;
   --font-size-code: 13px;
   --font-size-small: 11px;
+}
+
+.is-admin {
+  --accent-blue: var(--accent-orange);
+  --accent-lightblue: #f5b199;
+  --accent-tint-15: color-mix(in srgb, var(--accent-lightblue) 18%, transparent);
+  --accent-tint-10: color-mix(in srgb, var(--accent-lightblue) 12%, transparent);
+  --text-accent: #f5b199;
+  --border-active: var(--accent-orange);
+  --bg-statusbar: var(--accent-orange);
+  --bg-selected: #3b2a23;
+  --bg-highlight: #503228;
 }
 
 * {
@@ -704,7 +718,7 @@ html, body {
   font-size: 13px;
   font-family: var(--font-ui);
   border: 1px solid var(--border-subtle);
-  border-radius: 4px;
+  border-radius: 0;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -1334,7 +1348,7 @@ html, body {
   font-family: var(--font-mono);
   font-size: 11px;
   padding: 2px 8px;
-  background: rgba(79, 193, 255, 0.15);
+  background: var(--accent-tint-15);
   color: var(--accent-lightblue);
 }
 
@@ -1403,7 +1417,7 @@ html, body {
 .tag {
   font-size: 11px;
   padding: 3px 8px;
-  background: rgba(79, 193, 255, 0.1);
+  background: var(--accent-tint-10);
   color: var(--accent-lightblue);
   font-family: var(--font-mono);
 }
