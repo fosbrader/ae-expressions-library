@@ -2,8 +2,34 @@ import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import fs from 'fs/promises';
 import path from 'path';
+import { gitAutoCommit } from '../../../utils/gitAutoCommit';
 
 const EXPRESSIONS_DIR = path.join(process.cwd(), 'src/content/expressions');
+
+// Escape string for YAML double-quoted value
+function escapeYamlString(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/\\/g, '\\\\')  // Escape backslashes first
+    .replace(/"/g, '\\"')     // Escape double quotes
+    .replace(/\n/g, '\\n')    // Escape newlines
+    .replace(/\r/g, '\\r')    // Escape carriage returns
+    .replace(/\t/g, '\\t');   // Escape tabs
+}
+
+// Sanitize markdown notes to prevent frontmatter breakage
+function sanitizeNotes(notes: string): string {
+  if (!notes) return '';
+  // Replace standalone --- lines with a safe alternative
+  return notes.replace(/^---$/gm, '—--');
+}
+
+// Sanitize code to prevent YAML literal block issues
+function sanitizeCode(code: string): string {
+  if (!code) return '';
+  // Replace standalone --- lines which would break YAML frontmatter
+  return code.replace(/^---$/gm, '- --');
+}
 
 export const GET: APIRoute = async () => {
   const expressions = await getCollection('expressions');
@@ -56,35 +82,44 @@ export const POST: APIRoute = async ({ request }) => {
       annotations: data.annotations || []
     };
     
-    // Build MDX content
+    // Build MDX content with properly escaped YAML
     let mdxContent = `---
-id: "${frontmatter.id}"
-title: "${frontmatter.title}"
-description: "${frontmatter.description}"
+id: "${escapeYamlString(frontmatter.id)}"
+title: "${escapeYamlString(frontmatter.title)}"
+description: "${escapeYamlString(frontmatter.description)}"
 dateAdded: "${frontmatter.dateAdded}"
-aeVersion: "${frontmatter.aeVersion}"
+aeVersion: "${escapeYamlString(frontmatter.aeVersion)}"
 expressionTypes: ${JSON.stringify(frontmatter.expressionTypes)}
-layerType: "${frontmatter.layerType}"
-propertyType: "${frontmatter.propertyType}"
+layerType: "${escapeYamlString(frontmatter.layerType)}"
+propertyType: "${escapeYamlString(frontmatter.propertyType)}"
 complexity: ${frontmatter.complexity}
 projects: ${JSON.stringify(frontmatter.projects)}
 tags: ${JSON.stringify(frontmatter.tags)}
 code: |
-${frontmatter.code.split('\n').map(line => '  ' + line).join('\n')}
+${sanitizeCode(frontmatter.code).split('\n').map(line => '  ' + line).join('\n')}
 annotations:
-${frontmatter.annotations.map(a => `  - lines: "${a.lines}"
-    title: "${a.title}"
-    description: "${a.description}"`).join('\n') || '  []'}
+${frontmatter.annotations.map(a => `  - lines: "${escapeYamlString(a.lines)}"
+    title: "${escapeYamlString(a.title)}"
+    description: "${escapeYamlString(a.description)}"`).join('\n') || '  []'}
 ---
 
-${data.notes || ''}
+${sanitizeNotes(data.notes || '')}
 `;
     
     // Write file
     const filePath = path.join(EXPRESSIONS_DIR, `${slug}.mdx`);
     await fs.writeFile(filePath, mdxContent, 'utf-8');
     
-    return new Response(JSON.stringify({ id, slug, success: true }), {
+    // Auto-commit and push
+    const gitResult = await gitAutoCommit(`Add expression: ${data.title}`);
+    
+    return new Response(JSON.stringify({ 
+      id, 
+      slug, 
+      success: true,
+      gitPushed: gitResult.success,
+      gitError: gitResult.error 
+    }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });

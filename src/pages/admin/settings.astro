@@ -1,9 +1,12 @@
 ---
-import AdminLayout from '../../layouts/AdminLayout.astro';
+import IDELayout from '../../layouts/IDELayout.astro';
 import versionData from '../../data/version.json';
+
+const baseRaw = import.meta.env.BASE_URL;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 ---
 
-<AdminLayout title="Settings" activeTab="settings">
+<IDELayout title="Settings" isAdmin={true}>
   <div class="settings-grid">
     <div class="settings-main">
       <div class="admin-card">
@@ -118,7 +121,7 @@ import versionData from '../../data/version.json';
       </div>
     </div>
   </div>
-</AdminLayout>
+</IDELayout>
 
 <style>
   .settings-grid {
@@ -196,7 +199,7 @@ import versionData from '../../data/version.json';
   }
 </style>
 
-<script>
+<script define:vars={{ base }}>
   function parseVersion(version: string): [number, number, number, string] {
     const match = version.match(/^(\d+)\.(\d+)\.(\d+)(-.*)?$/);
     if (!match) return [0, 0, 0, ''];
@@ -219,7 +222,7 @@ import versionData from '../../data/version.json';
     const resultEl = document.getElementById('version-result');
     
     try {
-      const res = await fetch('/api/version', {
+      const res = await fetch(`${base}api/version`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ public: publicVersion, local: localVersion })

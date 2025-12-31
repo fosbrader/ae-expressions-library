@@ -6,12 +6,24 @@ interface Props {
 
 const { code, filename = 'expression.jsx' } = Astro.props;
 const lines = code.trim().split('\n');
+
+// Escape code for safe HTML attribute embedding
+function escapeHtmlAttr(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+const escapedCode = escapeHtmlAttr(code);
 ---
 
 <div class="code-section">
   <div class="code-header">
     <span class="code-filename">{filename}</span>
-    <button class="code-copy-btn" data-code={code}>📋 Copy</button>
+    <button class="code-copy-btn" data-code={escapedCode}>📋 Copy</button>
   </div>
   
   <div class="code-block">
@@ -20,23 +32,46 @@ const lines = code.trim().split('\n');
 </div>
 
 <script>
+  // Track pending timers per button to prevent race conditions
+  const pendingTimers = new WeakMap<Element, number>();
+  
+  // Decode HTML entities back to original code
+  function decodeHtmlAttr(str: string): string {
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = str;
+    return textarea.value;
+  }
+  
   const buttons = document.querySelectorAll('.code-copy-btn');
   buttons.forEach((btn) => {
     btn.addEventListener('click', async () => {
-      const code = btn.getAttribute('data-code') || '';
+      // Cancel any pending timer for this button
+      const existingTimer = pendingTimers.get(btn);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
+      
+      const encodedCode = btn.getAttribute('data-code') || '';
+      const code = decodeHtmlAttr(encodedCode);
+      
       try {
         await navigator.clipboard.writeText(code);
         btn.textContent = '✓ Copied';
         btn.classList.add('copied');
-        setTimeout(() => {
+        const timer = window.setTimeout(() => {
           btn.textContent = '📋 Copy';
           btn.classList.remove('copied');
+          pendingTimers.delete(btn);
         }, 2000);
+        pendingTimers.set(btn, timer);
       } catch (err) {
         btn.textContent = '❌ Failed';
-        setTimeout(() => {
+        btn.classList.remove('copied');
+        const timer = window.setTimeout(() => {
           btn.textContent = '📋 Copy';
+          pendingTimers.delete(btn);
         }, 2000);
+        pendingTimers.set(btn, timer);
       }
     });
   });

@@ -47,8 +47,14 @@ const searchData = expressions.map(expr => ({
   
   function initSearch() {
     const palette = document.getElementById('command-palette');
-    const input = document.getElementById('palette-input');
+    const input = document.getElementById('palette-input') as HTMLInputElement | null;
     const results = document.getElementById('palette-results');
+    
+    // Early return if required elements don't exist
+    if (!palette || !input || !results) {
+      console.warn('Search: Required DOM elements not found');
+      return;
+    }
     
     const fuse = new Fuse(searchData, {
       keys: [

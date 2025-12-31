@@ -1,0 +1,3 @@
+# Ignore admin pages in production build (they only work in dev/server mode)
+src/pages/admin/**
+src/pages/api/**

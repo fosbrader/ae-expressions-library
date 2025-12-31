@@ -1,13 +1,18 @@
 ---
-import AdminLayout from '../../../layouts/AdminLayout.astro';
+import IDELayout from '../../../layouts/IDELayout.astro';
 import categories from '../../../data/categories.json';
 import projects from '../../../data/projects.json';
+
+const baseRaw = import.meta.env.BASE_URL;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 ---
 
-<AdminLayout title="New Expression" activeTab="expressions">
-  <button type="submit" form="expression-form" slot="actions" class="admin-btn admin-btn-primary">
-    💾 Save Expression
-  </button>
+<IDELayout title="New Expression" isAdmin={true}>
+  <div class="page-actions">
+    <button type="submit" form="expression-form" class="admin-btn admin-btn-primary">
+      💾 Save Expression
+    </button>
+  </div>
   
   <form id="expression-form" class="expression-form">
     <div class="form-grid">
@@ -151,7 +156,7 @@ Additional documentation in markdown format..."></textarea>
       </div>
     </div>
   </form>
-</AdminLayout>
+</IDELayout>
 
 <style>
   .form-grid {
@@ -203,16 +208,22 @@ Additional documentation in markdown format..."></textarea>
   .checkbox-item:hover {
     color: var(--text-primary);
   }
+  
+  .page-actions {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
 </style>
 
-<script>
+<script define:vars={{ base }}>
   // Auto-generate slug from title
   const titleInput = document.querySelector('input[name="title"]');
-  const slugInput = document.getElementById('slug-input') as HTMLInputElement;
+  const slugInput = document.getElementById('slug-input');
   const slugStatus = document.getElementById('slug-status');
   
   titleInput?.addEventListener('input', async (e) => {
-    const title = (e.target as HTMLInputElement).value;
+    const title = e.target.value;
     const slug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -224,7 +235,7 @@ Additional documentation in markdown format..."></textarea>
       // Check if slug exists
       if (slug) {
         try {
-          const res = await fetch(`/api/validate-slug?slug=${slug}`);
+          const res = await fetch(`${base}api/validate-slug?slug=${slug}`);
           const data = await res.json();
           if (slugStatus) {
             if (data.exists) {
@@ -278,7 +289,7 @@ Additional documentation in markdown format..."></textarea>
   // Form submission
   document.getElementById('expression-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
+    const form = e.target;
     const formData = new FormData(form);
     
     // Build expression data
@@ -290,7 +301,7 @@ Additional documentation in markdown format..."></textarea>
       expressionType: formData.get('expressionType'),
       layerType: formData.get('layerType'),
       propertyType: formData.get('propertyType'),
-      complexity: parseInt(formData.get('complexity') as string),
+      complexity: parseInt(formData.get('complexity')),
       aeVersion: formData.get('aeVersion') || '17.0+',
       projects: formData.getAll('projects[]'),
       tags: formData.get('tags')?.toString().split(',').map(t => t.trim()).filter(Boolean) || [],
@@ -314,7 +325,7 @@ Additional documentation in markdown format..."></textarea>
     }
     
     try {
-      const res = await fetch('/api/expressions', {
+      const res = await fetch(`${base}api/expressions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -322,7 +333,7 @@ Additional documentation in markdown format..."></textarea>
       
       if (res.ok) {
         const result = await res.json();
-        window.location.href = `/admin/expressions/${result.id}/`;
+        window.location.href = `${base}admin/expressions/${result.id}/`;
       } else {
         const error = await res.json();
         alert('Error: ' + error.message);
