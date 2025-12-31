@@ -1,7 +1,10 @@
 ---
-import AdminLayout from '../../../layouts/AdminLayout.astro';
+import IDELayout from '../../../layouts/IDELayout.astro';
 import projects from '../../../data/projects.json';
 import { getCollection } from 'astro:content';
+
+const baseRaw = import.meta.env.BASE_URL;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 
 const expressions = await getCollection('expressions');
 
@@ -12,7 +15,7 @@ const projectCounts = projects.projects.map(proj => {
 });
 ---
 
-<AdminLayout title="Projects" activeTab="projects">
+<IDELayout title="Projects" isAdmin={true}>
   <div class="admin-card">
     <div class="admin-card-header">
       All Projects
@@ -41,7 +44,7 @@ const projectCounts = projects.projects.map(proj => {
                 <span class="admin-badge admin-badge-success">{proj.count}</span>
               </td>
               <td>
-                <a href={`/projects/${proj.id}/`} target="_blank" class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
+                <a href={`${base}projects/${proj.id}/`} target="_blank" class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
                   View
                 </a>
               </td>
@@ -70,4 +73,4 @@ const projectCounts = projects.projects.map(proj => {
       </p>
     </div>
   </div>
-</AdminLayout>
+</IDELayout>

@@ -5,6 +5,8 @@ interface Props {
 }
 
 const { code, filename = 'expression.jsx' } = Astro.props;
+
+// Escape HTML for display
 const escapeHtml = (text: string) =>
   text
     .replace(/&/g, '&amp;')
@@ -12,6 +14,18 @@ const escapeHtml = (text: string) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+
+// Escape code for safe HTML attribute embedding (for copy button)
+function escapeHtmlAttr(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+const escapedCode = escapeHtmlAttr(code);
 
 const applyTokenColors = (text: string) =>
   text
@@ -78,7 +92,7 @@ const highlightedLines = code
     <span class="code-filename">{filename}</span>
     <div class="code-actions">
       <button class="code-wrap-toggle" type="button">Wrap lines: Off</button>
-      <button class="code-copy-btn" data-code={code} type="button">📋 Copy</button>
+      <button class="code-copy-btn" data-code={escapedCode} type="button">📋 Copy</button>
     </div>
   </div>
 
@@ -90,6 +104,16 @@ const highlightedLines = code
 </div>
 
 <script>
+  // Track pending timers per button to prevent race conditions
+  const pendingTimers = new WeakMap<Element, number>();
+  
+  // Decode HTML entities back to original code
+  function decodeHtmlAttr(str: string): string {
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = str;
+    return textarea.value;
+  }
+
   const codeSections = document.querySelectorAll('.code-section');
 
   codeSections.forEach((section) => {
@@ -99,20 +123,33 @@ const highlightedLines = code
 
     if (copyButton) {
       copyButton.addEventListener('click', async () => {
-        const code = copyButton.getAttribute('data-code') || '';
+        // Cancel any pending timer for this button
+        const existingTimer = pendingTimers.get(copyButton);
+        if (existingTimer) {
+          clearTimeout(existingTimer);
+        }
+
+        const encodedCode = copyButton.getAttribute('data-code') || '';
+        const code = decodeHtmlAttr(encodedCode);
+
         try {
           await navigator.clipboard.writeText(code);
           copyButton.textContent = '✓ Copied';
           copyButton.classList.add('copied');
-          setTimeout(() => {
+          const timer = window.setTimeout(() => {
             copyButton.textContent = '📋 Copy';
             copyButton.classList.remove('copied');
+            pendingTimers.delete(copyButton);
           }, 2000);
+          pendingTimers.set(copyButton, timer);
         } catch (err) {
           copyButton.textContent = '❌ Failed';
-          setTimeout(() => {
+          copyButton.classList.remove('copied');
+          const timer = window.setTimeout(() => {
             copyButton.textContent = '📋 Copy';
+            pendingTimers.delete(copyButton);
           }, 2000);
+          pendingTimers.set(copyButton, timer);
         }
       });
     }

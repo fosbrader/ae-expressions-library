@@ -1,7 +1,10 @@
 ---
-import AdminLayout from '../../../layouts/AdminLayout.astro';
+import IDELayout from '../../../layouts/IDELayout.astro';
 import { getCollection } from 'astro:content';
 import categories from '../../../data/categories.json';
+
+const baseRaw = import.meta.env.BASE_URL;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 
 const expressions = await getCollection('expressions');
 const sortedExpressions = [...expressions].sort(
@@ -9,10 +12,12 @@ const sortedExpressions = [...expressions].sort(
 );
 ---
 
-<AdminLayout title="Expressions" activeTab="expressions">
-  <a href="/admin/expressions/new/" slot="actions" class="admin-btn admin-btn-primary">
-    + New Expression
-  </a>
+<IDELayout title="All Expressions" isAdmin={true}>
+  <div class="page-header">
+    <a href={`${base}admin/expressions/new/`} class="admin-btn admin-btn-primary">
+      + New Expression
+    </a>
+  </div>
   
   <div class="admin-card">
     <div class="admin-card-body" style="padding: 0;">
@@ -56,10 +61,10 @@ const sortedExpressions = [...expressions].sort(
                 <td>{expr.data.dateAdded}</td>
                 <td>
                   <div style="display: flex; gap: 4px;">
-                    <a href={`/admin/expressions/${expr.data.id}/`} class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
+                    <a href={`${base}admin/expressions/${expr.data.id}/`} class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
                       Edit
                     </a>
-                    <a href={`/expressions/${expr.slug}/`} target="_blank" class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
+                    <a href={`${base}expressions/${expr.slug}/`} target="_blank" class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
                       View
                     </a>
                   </div>
@@ -71,4 +76,12 @@ const sortedExpressions = [...expressions].sort(
       </table>
     </div>
   </div>
-</AdminLayout>
+</IDELayout>
+
+<style>
+  .page-header {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>

@@ -1,33 +1,51 @@
 ---
-import AdminLayout from '../../../layouts/AdminLayout.astro';
+import IDELayout from '../../../layouts/IDELayout.astro';
 import { getCollection } from 'astro:content';
 import categories from '../../../data/categories.json';
 import projects from '../../../data/projects.json';
+
+const baseRaw = import.meta.env.BASE_URL;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 
 const { id } = Astro.params;
 const expressions = await getCollection('expressions');
 const expression = expressions.find(e => e.data.id === id);
 
-if (!expression) {
-  return Astro.redirect('/admin/expressions/');
-}
-
-const data = expression.data;
+// Handle case where expression is not found (can happen during content reload)
+const data = expression?.data;
+const expressionSlug = expression?.slug || '';
 ---
 
-<AdminLayout title={`Edit: ${data.title}`} activeTab="expressions">
-  <Fragment slot="actions">
+{!expression ? (
+  <IDELayout title="Expression Not Found" isAdmin={true}>
+    <div class="admin-card">
+      <div class="admin-card-header">Expression Not Found</div>
+      <div class="admin-card-body">
+        <p>The expression with ID <code>{id}</code> was not found.</p>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">
+          This can happen if the content is still reloading after a save. Try refreshing the page.
+        </p>
+        <div style="margin-top: 16px; display: flex; gap: 8px;">
+          <button onclick="window.location.reload()" class="admin-btn admin-btn-primary">🔄 Refresh Page</button>
+          <a href={`${base}admin/expressions/`} class="admin-btn admin-btn-secondary">← Back to Expressions</a>
+        </div>
+      </div>
+    </div>
+  </IDELayout>
+) : (
+<IDELayout title={`Edit: ${data.title}`} isAdmin={true}>
+  <div class="page-actions">
     <button type="submit" form="expression-form" class="admin-btn admin-btn-primary">
       💾 Save Changes
     </button>
     <button type="button" id="delete-btn" class="admin-btn admin-btn-danger">
       🗑️ Delete
     </button>
-  </Fragment>
+  </div>
   
   <form id="expression-form" class="expression-form">
     <input type="hidden" name="id" value={data.id}>
-    <input type="hidden" name="originalSlug" value={expression.slug}>
+    <input type="hidden" name="originalSlug" value={expressionSlug}>
     
     <div class="form-grid">
       <div class="form-main">
@@ -44,8 +62,8 @@ const data = expression.data;
             
             <div class="admin-form-group">
               <label class="admin-form-label">Slug</label>
-              <input type="text" name="slug" id="slug-input" class="admin-form-input" value={expression.slug}>
-              <div class="admin-form-hint" id="slug-status">Current: /{expression.slug}/</div>
+              <input type="text" name="slug" id="slug-input" class="admin-form-input" value={expressionSlug}>
+              <div class="admin-form-hint" id="slug-status">Current: /{expressionSlug}/</div>
             </div>
             
             <div class="admin-form-group">
@@ -207,7 +225,7 @@ const data = expression.data;
         <div class="admin-card">
           <div class="admin-card-header">Preview</div>
           <div class="admin-card-body">
-            <a href={`/expressions/${expression.slug}/`} target="_blank" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center;">
+            <a href={`${base}expressions/${expressionSlug}/`} target="_blank" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center;">
               🌐 View on Site
             </a>
           </div>
@@ -215,7 +233,8 @@ const data = expression.data;
       </div>
     </div>
   </form>
-</AdminLayout>
+</IDELayout>
+)}
 
 <style>
   .form-grid {
@@ -267,9 +286,16 @@ const data = expression.data;
   .checkbox-item:hover {
     color: var(--text-primary);
   }
+  
+  .page-actions {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
 </style>
 
-<script define:vars={{ expressionId: id }}>
+<script define:vars={{ expressionId: id, base }}>
   // Slug validation
   const slugInput = document.getElementById('slug-input');
   const slugStatus = document.getElementById('slug-status');
@@ -279,7 +305,7 @@ const data = expression.data;
     const slug = e.target.value;
     if (slug && slug !== originalSlug) {
       try {
-        const res = await fetch(`/api/validate-slug?slug=${slug}&excludeId=${expressionId}`);
+        const res = await fetch(`${base}api/validate-slug?slug=${slug}&excludeId=${expressionId}`);
         const data = await res.json();
         if (slugStatus) {
           if (data.exists) {
@@ -377,7 +403,7 @@ const data = expression.data;
     }
     
     try {
-      const res = await fetch(`/api/expressions/${expressionId}`, {
+      const res = await fetch(`${base}api/expressions/${expressionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -405,12 +431,12 @@ const data = expression.data;
     }
     
     try {
-      const res = await fetch(`/api/expressions/${expressionId}`, {
+      const res = await fetch(`${base}api/expressions/${expressionId}`, {
         method: 'DELETE'
       });
       
       if (res.ok) {
-        window.location.href = '/admin/expressions/';
+        window.location.href = `${base}admin/expressions/`;
       } else {
         const error = await res.json();
         alert('Error: ' + error.message);

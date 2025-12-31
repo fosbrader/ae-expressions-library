@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Search from '../components/Search.astro';
 import categories from '../data/categories.json';
 import projects from '../data/projects.json';
+import versionData from '../data/version.json';
 import { getCollection } from 'astro:content';
 
 interface Props {
@@ -10,9 +11,10 @@ interface Props {
   activeTab?: string;
   showBreadcrumb?: boolean;
   breadcrumbPath?: string;
+  isAdmin?: boolean;
 }
 
-const { title, activeTab, showBreadcrumb = false, breadcrumbPath = '' } = Astro.props;
+const { title, activeTab, showBreadcrumb = false, breadcrumbPath = '', isAdmin = false } = Astro.props;
 const baseRaw = import.meta.env.BASE_URL;
 const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 
@@ -35,10 +37,11 @@ expressions.forEach(expr => {
 });
 
 // Version tracking
-const siteVersion = "0.2.2";
+const siteVersion = versionData.public;
 const buildDate = new Date().toISOString().split('T')[0];
 const isDev = import.meta.env.DEV;
-const versionDisplay = isDev ? `${siteVersion}-dev` : siteVersion;
+const versionDisplay = isDev ? versionData.local : siteVersion;
+
 
 // Terminal messages
 const terminalMessages = [
@@ -116,7 +119,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
         <div class="sidebar-header">Explorer</div>
         <nav class="sidebar-content">
           <ul class="file-tree">
-            <!-- Expressions section -->
+            {/* Expressions section - same for both admin and public */}
             <li class="tree-section">
               <div class="tree-section-header">
                 <span class="tree-chevron">›</span>
@@ -134,9 +137,9 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
                       </div>
                       <ul class="tree-folder-children">
                         {exprs.map(expr => (
-                          <li>
+                          <li class="tree-file-row">
                             <a 
-                              href={`${base}expressions/${expr.slug}/`}
+                              href={isAdmin ? `${base}admin/expressions/${expr.data.id}/` : `${base}expressions/${expr.slug}/`}
                               class={`tree-file ${activeTab === expr.slug ? 'active' : ''}`}
                             >
                               <svg class="file-svg" width="16" height="16" viewBox="0 0 16 16" fill="#f0db4f"><path d="M10 0L6 0 0 6v9.5l.5.5h15l.5-.5v-15L10 0zm4 15H2V6.5L5.5 3H14v12z"/></svg>
@@ -151,7 +154,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
               </ul>
             </li>
             
-            <!-- Projects section -->
+            {/* Projects section - same for both admin and public */}
             <li class="tree-section">
               <div class="tree-section-header">
                 <span class="tree-chevron">›</span>
@@ -161,7 +164,7 @@ const randomMessage = terminalMessages[Math.floor(Math.random() * terminalMessag
                 {projects.projects.map(proj => (
                   <li>
                     <a 
-                      href={`${base}projects/${proj.id}/`} 
+                      href={isAdmin ? `${base}admin/projects/${proj.id}/` : `${base}projects/${proj.id}/`} 
                       class={`tree-file ${activeTab === `project-${proj.id}` ? 'active' : ''}`}
                     >
                       <svg class="file-svg" width="16" height="16" viewBox="0 0 16 16" fill="#6997d5"><path d="M14.5 3H7.71l-.85-.85L6.51 2h-5l-.5.5v11l.5.5h13l.5-.5v-10L14.5 3zm-.51 8.49V13h-12V3h4.29l.85.85.36.15H14v7.49z"/></svg>

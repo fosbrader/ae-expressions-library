@@ -1,8 +1,11 @@
 ---
-import AdminLayout from '../../layouts/AdminLayout.astro';
+import IDELayout from '../../layouts/IDELayout.astro';
 import { getCollection } from 'astro:content';
 import versionData from '../../data/version.json';
 import projects from '../../data/projects.json';
+
+const baseRaw = import.meta.env.BASE_URL;
+const base = baseRaw.endsWith('/') ? baseRaw : baseRaw + '/';
 
 const expressions = await getCollection('expressions');
 const recentExpressions = [...expressions]
@@ -10,7 +13,7 @@ const recentExpressions = [...expressions]
   .slice(0, 5);
 ---
 
-<AdminLayout title="Dashboard" activeTab="dashboard">
+<IDELayout title="Admin Dashboard" isAdmin={true}>
   <div class="dashboard-grid">
     <div class="dashboard-stats">
       <div class="stat-card">
@@ -51,7 +54,7 @@ const recentExpressions = [...expressions]
                   <td><span class="admin-badge">{expr.data.expressionTypes[0]}</span></td>
                   <td>{expr.data.dateAdded}</td>
                   <td>
-                    <a href={`/admin/expressions/${expr.data.id}/`} class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
+                    <a href={`${base}admin/expressions/${expr.data.id}/`} class="admin-btn admin-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
                       Edit
                     </a>
                   </td>
@@ -65,20 +68,20 @@ const recentExpressions = [...expressions]
       <div class="admin-card" style="width: 300px;">
         <div class="admin-card-header">Quick Actions</div>
         <div class="admin-card-body">
-          <a href="/admin/expressions/new/" class="admin-btn admin-btn-primary" style="width: 100%; justify-content: center; margin-bottom: 8px;">
+          <a href={`${base}admin/expressions/new/`} class="admin-btn admin-btn-primary" style="width: 100%; justify-content: center; margin-bottom: 8px;">
             + New Expression
           </a>
-          <a href="/admin/deploy/" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center; margin-bottom: 8px;">
-            🚀 Deploy to GitHub
-          </a>
-          <a href="/" target="_blank" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center;">
+          <a href={`${base}`} target="_blank" class="admin-btn admin-btn-secondary" style="width: 100%; justify-content: center;">
             🌐 View Live Site
           </a>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px; text-align: center;">
+            Changes auto-push to GitHub on save
+          </p>
         </div>
       </div>
     </div>
   </div>
-</AdminLayout>
+</IDELayout>
 
 <style>
   .dashboard-grid {
