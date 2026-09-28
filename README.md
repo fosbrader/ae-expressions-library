@@ -1,14 +1,12 @@
 # AE Expressions Library
 
-A personal library of After Effects expressions, organized by use-case, project, and complexity. Built with Astro and styled like VS Code/Cursor.
+A personal library of After Effects expressions, organized by use-case, project, and complexity. Built with Astro and styled like VS Code.
 
 **Live Site:** https://fosbrader.github.io/ae-expressions-library
 
 ---
 
-## 🤖 AI Agent Instructions
-
-> This section is for AI assistants (ChatGPT, Claude, Cursor, etc.) helping maintain this library.
+## 📚 Maintaining the Library
 
 ### Quick Context
 
@@ -51,9 +49,9 @@ propertyType: source-text # Pick from categories.json → propertyTypes
 complexity: 2             # 1-4 (Simple, Moderate, Advanced, Expert)
 projects:
   - project-id            # Must match id in projects.json
-addedBy: "Your Name or A.I. - GPT-5.1-Codex-Max"
+addedBy: "Brad Fosler"
 validated: true
-validatedBy: "Validated by A.I. - GPT-5.1-Codex-Max" # or "Unvalidated"
+validatedBy: "Validated by Brad Fosler" # or "Unvalidated"
 tags:
   - relevant
   - keywords
@@ -112,7 +110,7 @@ npm run build
 
 If build succeeds, the changes are valid. Push to deploy.
 
-Mark validated expressions by setting `validated: true` and `validatedBy: "Validated by {name}"` (or `"Validated by A.I. - GPT-5.1-Codex-Max"`). Leave `validated` as `false` with `validatedBy: "Unvalidated"` if it still needs review.
+Mark validated expressions by setting `validated: true` and `validatedBy: "Validated by {name}"` (for example, `"Validated by Brad Fosler"`). Leave `validated` as `false` with `validatedBy: "Unvalidated"` if it still needs review.
 
 ### Common Tasks
 
@@ -126,7 +124,7 @@ Mark validated expressions by setting `validated: true` and `validatedBy: "Valid
 
 ---
 
-## 🧑‍💻 Human Instructions
+## 🧑‍💻 Getting Started
 
 ### Prerequisites
 
@@ -152,7 +150,7 @@ Open http://localhost:4321/ae-expressions-library
 ### Adding Expressions
 
 1. Create a new file in `src/content/expressions/` with `.mdx` extension
-2. Follow the template in the AI section above
+2. Follow the template under "Adding a New Expression" above
 3. Test locally with `npm run dev`
 4. Commit and push:
 
@@ -178,7 +176,7 @@ Site updates automatically in ~1 minute.
 | `propertyType` | string | ✅ | Property from `categories.json` |
 | `complexity` | number | ✅ | 1-4 difficulty level |
 | `projects` | string[] | ✅ | Project IDs from `projects.json` |
-| `addedBy` | string | ✅ | Who added the expression (e.g., "Brad" or "A.I. - GPT-5.1-Codex-Max") |
+| `addedBy` | string | ✅ | Who added the expression (e.g., "Brad Fosler") |
 | `validated` | boolean | ✅ | Whether the expression has been tested/verified |
 | `validatedBy` | string | ✅ | "Validated by {name}" or "Unvalidated" |
 | `tags` | string[] | ❌ | Searchable keywords |

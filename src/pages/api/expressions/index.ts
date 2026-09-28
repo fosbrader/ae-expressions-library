@@ -50,8 +50,8 @@ export const POST: APIRoute = async ({ request }) => {
     const data = await request.json();
 
     const validated = data.validated === true || data.validated === 'true';
-    const validatedBy = data.validatedBy || (validated ? 'Validated by A.I. - GPT-5.1-Codex-Max' : 'Unvalidated');
-    const addedBy = data.addedBy || 'A.I. - GPT-5.1-Codex-Max';
+    const validatedBy = data.validatedBy || (validated ? 'Validated by Brad Fosler' : 'Unvalidated');
+    const addedBy = data.addedBy || 'Brad Fosler';
 
     // Generate unique ID
     const id = `expr-${Date.now().toString(36)}`;
